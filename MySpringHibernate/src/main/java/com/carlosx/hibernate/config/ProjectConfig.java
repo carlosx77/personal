@@ -38,7 +38,7 @@ public class ProjectConfig {
 	private String password;
 	
 	
-	//HIbernate properties
+	//Hibernate properties
 	@Value ("${hibernate.dialect}")
 	private String dialect;
 	@Value ("${hibernate.formatSql}")
