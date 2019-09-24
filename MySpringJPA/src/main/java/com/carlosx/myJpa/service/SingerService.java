@@ -12,6 +12,7 @@ public interface SingerService {
     public Singer save (Singer singer);
     public void delete (Singer singer);
     public List<Singer> findAllByNativeQuery ();
+    public List<Singer> findAllByNativeQueryAndResulSetMapping ();
     public List<Object[]> displayAllSingerSummary();
     public List<SingerSummary> displayAllSingerSummaryUsingView();
 }

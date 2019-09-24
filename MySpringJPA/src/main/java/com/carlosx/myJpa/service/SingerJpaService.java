@@ -6,8 +6,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +20,10 @@ import com.carlosx.myJpa.view.SingerSummary;
 @Transactional
 public class SingerJpaService implements SingerService {
 
-	private final static String ALL_SINGER_NATIVE_QUERY = "select id, first_name, last_name, birth_date, version from singer";
-
 	@PersistenceContext
 	private EntityManager em;
 
-	private static Logger logger = LoggerFactory.getLogger(SingerJpaService.class);
+	//private static Logger logger = LoggerFactory.getLogger(SingerJpaService.class);
 
 	@Transactional(readOnly = true)
 	@Override
@@ -47,23 +45,30 @@ public class SingerJpaService implements SingerService {
 		return query.getSingleResult();
 	}
 
+	/*
+	 * Works for saving or updating
+	 */
 	@Override
 	public Singer save(Singer singer) {
-		// TODO Auto-generated method stub
-		return null;
+		if (singer.getId()==null) {
+			em.persist(singer);
+		} else {
+			em.merge(singer);
+		}
+		return singer;
 	}
 
 	@Override
 	public void delete(Singer singer) {
-		// TODO Auto-generated method stub
-
+		Singer mergedSinger = em.merge(singer);
+		em.remove(mergedSinger);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	@Override
 	public List<Singer> findAllByNativeQuery() {
-		// TODO Auto-generated method stub
-		return null;
+		return em.createNativeQuery(Singer.ALL_SINGER_NATIVE_QUERY, Singer.class).getResultList();
 	}
 
 	@Transactional(readOnly = true)
@@ -84,5 +89,13 @@ public class SingerJpaService implements SingerService {
 						+ "left join s.albums a "
 						+ "where a.releaseDate=(select max(a2.releaseDate) from Album a2 where a2.singer.id = s.id)", SingerSummary.class).getResultList();
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional (readOnly=true)
+	@Override
+	public List<Singer> findAllByNativeQueryAndResulSetMapping() {
+		//singerResult has to match with the @SqlResultSetMapping defined on Singer class
+		return em.createNativeQuery(Singer.ALL_SINGER_NATIVE_QUERY, "singerResult").getResultList();
 	}
 }

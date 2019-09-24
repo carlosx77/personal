@@ -30,6 +30,7 @@ public class Singer implements Serializable {
     public static final String FIND_ALL = "Singer.findAll";
     public static final String FIND_SINGER_BY_ID = "Singer.findById";
     public static final String FIND_ALL_WITH_ALBUM = "Singer.findAllWithAlbum";
+    public static final String ALL_SINGER_NATIVE_QUERY = "select id, first_name, last_name, birth_date, version from SINGER";
 
     @Id
     @GeneratedValue(strategy = IDENTITY)

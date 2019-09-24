@@ -1,5 +1,7 @@
 package com.carlosx.myJpa.main;
 
+//import java.util.Date;
+//import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +26,9 @@ public class MySpringJpaMain {
 		List<Singer> singers = service.findAll();
 		printOnlySingers(singers);
 		printSingers (service.findAllWithAlbum());
-		logger.info("Single Singer: " + service.findById(5l).toString());
+		
+		Singer single = service.findById(4l);
+		logger.info("Single Singer: " + single.toString());
 		List<Object[]> summary = service.displayAllSingerSummary();
 		for ( Object[] row : summary ) {
 			logger.info("Summary Row: " + row[0] + ", " + row[1] + ", " + row[2]);
@@ -34,6 +38,29 @@ public class MySpringJpaMain {
 			logger.info("Summary view: " + singer.toString());
 		}
 		
+		/*Singer newSinger = new Singer();
+		newSinger.setFirstName("Carlosx");
+		newSinger.setLastName("Perez");
+		newSinger.setBirthDate(new Date(
+		        (new GregorianCalendar(1940, 8, 16)).getTime().getTime()));
+        Album  album = new Album();
+        album.setTitle("My Kind of Blues");
+        album.setReleaseDate(new java.sql.Date(
+        (new GregorianCalendar(1961, 7, 18)).getTime().getTime()));
+        newSinger.addAlbum(album);
+        album = new Album();
+        album.setTitle("A Heart Full of Blues");
+        album.setReleaseDate(new java.sql.Date(
+        (new GregorianCalendar(1962, 3, 20)).getTime().getTime()));
+        newSinger.addAlbum(album);
+        service.save(newSinger);*/
+		
+		// service.delete(single);
+        
+        printSingers (service.findAllWithAlbum());
+        logger.info("All by Native Query");
+        printOnlySingers (service.findAllByNativeQuery());
+        
 		ctx.close();
 	}
 	
