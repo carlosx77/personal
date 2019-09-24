@@ -19,9 +19,7 @@ import static javax.persistence.GenerationType.IDENTITY;
                         "left join fetch s.instruments i " +
                         "where s.id = :id"),
         @NamedQuery(name=Singer.FIND_ALL_WITH_ALBUM,
-                query="select distinct s from Singer s " +
-                        "left join fetch s.albums a " +
-                        "left join fetch s.instruments i")
+                query="select distinct s from Singer s left join fetch s.albums a left join fetch s.instruments i")
 })
 @SqlResultSetMapping(
      name="singerResult",

@@ -3,12 +3,15 @@ package com.carlosx.myJpa.service;
 import java.util.List;
 
 import com.carlosx.myJpa.entities.Singer;
+import com.carlosx.myJpa.view.SingerSummary;
 
 public interface SingerService {
-    List<Singer> findAll();
-    List<Singer> findaAllWithAlbum();
-    Singer findById(Long id);
-    Singer save (Singer singer);
-    void delete (Singer singer);
-    List<Singer> findAllByNativeQuery ();
+    public List<Singer> findAll();
+    public List<Singer> findAllWithAlbum();
+    public Singer findById(Long id);
+    public Singer save (Singer singer);
+    public void delete (Singer singer);
+    public List<Singer> findAllByNativeQuery ();
+    public List<Object[]> displayAllSingerSummary();
+    public List<SingerSummary> displayAllSingerSummaryUsingView();
 }
