@@ -23,7 +23,7 @@ import com.carlosx.springjpa.dao.SingerServiceImpl;
 
 @Configuration
 @PropertySource("classpath:db/database.properties")  //change the path & name to obtain properties as needed
-@ComponentScan("com.carlos.myJpa.service") //change package as needed
+@ComponentScan("com.carlosx.springjpa.entities") //change package as needed
 @EnableTransactionManagement
 public class JpaConfig {
 	
