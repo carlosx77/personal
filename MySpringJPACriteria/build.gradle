@@ -113,16 +113,14 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     compile        hibernate.jpaApi,spring.orm,spring.context,misc.slf4jJcl,misc.logback, db.dbcp2, db.dbcp, db.mariaDb, hibernate.querydslapt, hibernate.jpaModelGen, hibernate.jpaModelGen, hibernate.em 
     implementation hibernate.querydslapt, hibernate.jpaModelGen, hibernate.jpaApi
-    annotationProcessor hibernate.jpaModelGen
+    //annotationProcessor hibernate.jpaModelGen
 	
 }
+
+/*
 
 compileJava {
 	classpath = configurations.compile
 	options.compilerArgs += ['-AaddGenerationDate=true'] // Specific to Hibernate JPA meta model generation processor.
 	options.annotationProcessorGeneratedSourcesDirectory = file("src/main/generated")	
-}
-
-
-
-
+}*/
