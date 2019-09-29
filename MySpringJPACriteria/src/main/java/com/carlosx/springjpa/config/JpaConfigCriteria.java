@@ -23,9 +23,9 @@ import com.carlosx.springjpa.dao.SingerServiceImpl;
 
 @Configuration
 @PropertySource("classpath:db/database.properties")  //change the path & name to obtain properties as needed
-@ComponentScan("com.carlosx.springjpa.entities") //change package as needed
+@ComponentScan("com.carlosx.springjpa.dao") //change package as needed
 @EnableTransactionManagement
-public class JpaConfig {
+public class JpaConfigCriteria {
 	
 	
 	
@@ -86,7 +86,8 @@ public class JpaConfig {
 	@Bean
 	public EntityManagerFactory entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
-		factoryBean.setPackagesToScan("com.carlosx.myJpa.entities");
+		//TO-DO change package as needed
+		factoryBean.setPackagesToScan("com.carlosx.springjpa.entities");
 		factoryBean.setDataSource(this.dataSource());
 		factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 		factoryBean.setJpaProperties(this.hibernateProperties());
@@ -99,8 +100,8 @@ public class JpaConfig {
 		return new HibernateJpaVendorAdapter();
 	}
 	
-	@Bean
-	public SingerService singerJpaService () {
+	@Bean ("singerServiceImpl")
+	public SingerService singerServiceImpl () {
 		return new SingerServiceImpl();
 	}
 }
