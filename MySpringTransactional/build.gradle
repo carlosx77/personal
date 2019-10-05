@@ -11,16 +11,9 @@ plugins {
     id 'java-library'
 }
 
-
-	task copyDependencies(type: Copy) {
-		from configurations.compile
-		into 'build/libs'
-	}
-
 repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-
     jcenter()
 	mavenLocal()
 	mavenCentral()
@@ -35,18 +28,24 @@ ext {
 	//spring libs
 	springVersion = '5.0.10.RELEASE'
 	springDataVersion = '2.0.11.RELEASE'
+	bootVersion = '2.0.6.RELEASE'
 	
 	//Database
-	mariaDbVersion = '2.4.3'
-	dbcpVersion = '2.1'
+	//mariaDbVersion = '2.4.3'
+	//dbcpVersion = '2.1'
+	h2Version =  '1.4.194'
+	mysqlVersion = '8.0.17'
 	
-	//hibernate
+	//persistance libs
 	hibernateVersion = '5.4.0.Final'
 	hibernateJpaVersion = '1.0.0.Final'
+	atomikosVersion = '4.0.4' //JTA transaction manager for standalone app or web container environment (for use in a non JEE env)
 	
 	//logging libs
 	slf4jVersion = '1.7.25'
 	logbackVersion = '1.2.3'
+	
+	guavaVersion = '21.0'
 	
 	
 	spring = [
@@ -67,60 +66,64 @@ ext {
 			webflux           : "org.springframework:spring-webflux:$springVersion"
 	]
 	
+	boot = [
+			springBootPlugin: "org.springframework.boot:spring-boot-gradle-plugin:$bootVersion",
+			starter         : "org.springframework.boot:spring-boot-starter:$bootVersion",
+			starterWeb      : "org.springframework.boot:spring-boot-starter-web:$bootVersion",
+			actuator        : "org.springframework.boot:spring-boot-starter-actuator:$bootVersion",
+			starterTest     : "org.springframework.boot:spring-boot-starter-test:$bootVersion",
+			starterAop      : "org.springframework.boot:spring-boot-starter-aop:$bootVersion",
+			starterJdbc     : "org.springframework.boot:spring-boot-starter-jdbc:$bootVersion",
+			starterJpa      : "org.springframework.boot:spring-boot-starter-data-jpa:$bootVersion",
+			starterJta      : "org.springframework.boot:spring-boot-starter-jta-atomikos:$bootVersion",
+			starterJms      : "org.springframework.boot:spring-boot-starter-artemis:$bootVersion",
+			starterRabbitmq : "org.springframework.boot:spring-boot-starter-amqp:$bootVersion",
+			starterThyme    : "org.springframework.boot:spring-boot-starter-thymeleaf:$bootVersion",
+			starterSecurity : "org.springframework.boot:spring-boot-starter-security:$bootVersion",
+			starterBatch    : "org.springframework.boot:spring-boot-starter-batch:$bootVersion",
+			starterWebflux  : "org.springframework.boot:spring-boot-starter-webflux:$bootVersion"
+	]
+		
 	db = [
-			mariaDb : "org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion",
-			dbcp2 : "org.apache.commons:commons-dbcp2:$dbcpVersion",
-			dbcp  : "commons-dbcp:commons-dbcp:1.4"
+			//mariaDb : "org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion",
+			//dbcp2 : "org.apache.commons:commons-dbcp2:$dbcpVersion",
+			//dbcp  : "commons-dbcp:commons-dbcp:1.4"
+			mysql : "mysql:mysql-connector-java:$mysqlVersion",
+			h2:"com.h2database:h2:$h2Version"
+			
 	]
 	
 	hibernate = [
+		em : "org.hibernate:hibernate-entitymanager:$hibernateVersion",
 	    validator: "org.hibernate:hibernate-validator:5.1.3.Final",
 	    ehcache : "org.hibernate:hibernate-ehcache:$hibernateVersion",
 	    jpaModelGen: "org.hibernate:hibernate-jpamodelgen:$hibernateVersion",
 	    jpaApi     : "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:$hibernateJpaVersion",
 	    querydslapt: "com.mysema.querydsl:querydsl-apt:2.7.1",
-	    em : "org.hibernate:hibernate-entitymanager:$hibernateVersion"
+	    tx         : "com.atomikos:transactions-hibernate4:$atomikosVersion"
   	]
 	
 	misc = [
 		slf4jJcl       : "org.slf4j:jcl-over-slf4j:$slf4jVersion",
+		//aspectjweaver  : "org.aspectj:aspectjweaver:$aspectjVersion",
+		lang3          : "org.apache.commons:commons-lang3:3.5",  //to use Not Implemented Exception
+		guava          : "com.google.guava:guava:$guavaVersion",
 		logback        : "ch.qos.logback:logback-classic:$logbackVersion"
 	]
 }
 
 
-sourceSets {
-	generated
-	
-    main {
-        compileClasspath += generated.output
-        runtimeClasspath += generated.output
-    }
-
-    test {
-        compileClasspath += generated.output
-        runtimeClasspath += generated.output
-    }
-}
-
-sourceSets.generated.java.srcDirs = ['src/main/generated']
-
-configurations {
-	querydslapt
-}
-
 dependencies {
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+
+    compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx
+    compile spring.orm,spring.context,spring.data
+    compile misc.slf4jJcl,misc.logback,misc.lang3 //,misc.aspectjweaver
+    compile db.mysql, db.h2
+    
+
+    //compile project (':MySpringTransactionAnnotations')
+    
+    // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
-    compile        hibernate.jpaApi,spring.orm,spring.context,misc.slf4jJcl,misc.logback, db.dbcp2, db.dbcp, db.mariaDb, hibernate.querydslapt, hibernate.jpaModelGen, hibernate.jpaModelGen, hibernate.em 
-    implementation hibernate.querydslapt, hibernate.jpaModelGen, hibernate.jpaApi
-    //annotationProcessor hibernate.jpaModelGen
-	
 }
-
-/*
-
-compileJava {
-	classpath = configurations.compile
-	options.compilerArgs += ['-AaddGenerationDate=true'] // Specific to Hibernate JPA meta model generation processor.
-	options.annotationProcessorGeneratedSourcesDirectory = file("src/main/generated")	
-}*/

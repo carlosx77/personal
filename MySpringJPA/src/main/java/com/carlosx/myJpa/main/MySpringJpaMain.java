@@ -19,7 +19,9 @@ import com.carlosx.myJpa.service.SingerService;
 import com.carlosx.myJpa.view.SingerSummary;
 
 public class MySpringJpaMain {
+	
 	private static Logger logger = LoggerFactory.getLogger(SingerJpaService.class);
+	
 	public static void main (String...args) {
 		ConfigurableApplicationContext ctx = new AnnotationConfigApplicationContext(JpaConfig.class);
 		SingerService service = (SingerService) ctx.getBean("singerJpaService");
