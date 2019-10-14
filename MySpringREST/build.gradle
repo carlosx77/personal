@@ -27,6 +27,7 @@ ext {
 	springVersion = '5.0.10.RELEASE'
 	springDataVersion = '2.0.11.RELEASE'
 	bootVersion = '2.0.6.RELEASE'
+	springSecurityVersion = '5.0.2.BUILD-SNAPSHOT'
 	
 	//Database
 	//mariaDbVersion = '2.4.3'
@@ -51,6 +52,9 @@ ext {
 	castorVersion = '1.4.1'
 	jacksonVersion = '2.9.0'
 	
+	httpclientVersion = '4.5.3'
+	
+	
 	spring = [
 			context           : "org.springframework:spring-context:$springVersion",
 			webmvc            : "org.springframework:spring-webmvc:$springVersion",
@@ -64,8 +68,7 @@ ext {
 			test              : "org.springframework:spring-test:$springVersion",
 			jms               : "org.springframework:spring-jms:$springVersion",
 			oxm               : "org.springframework:spring-oxm:$springVersion", //object to xml conversions
-			webSocket         : "org.springframework:spring-websocket:$springVersion",
-			messaging         : "org.springframework:spring-messaging:$springVersion",
+			contextSupport    : "org.springframework:spring-context-support:$springVersion",
 			webflux           : "org.springframework:spring-webflux:$springVersion"
 	]
 	
@@ -115,6 +118,7 @@ ext {
 		jms            : "javax.jms:javax.jms-api:$jmsVersion",
 		castor         : "org.codehaus.castor:castor-xml:$castorVersion",
 		jacksonDatabind: "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+		httpclient   : "org.apache.httpcomponents:httpclient:$httpclientVersion",
 		logback        : "ch.qos.logback:logback-classic:$logbackVersion"
 	]
 	
@@ -149,8 +153,8 @@ repositories {
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     	compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm
-	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind//,misc.lang3 //,misc.aspectjweaver
+	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
+	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient//,misc.lang3 //,misc.aspectjweaver
 	    compile db.mysql, db.h2
 	    compile web.servlet
 	    //compile project (':MySpringTransactionAnnotations')

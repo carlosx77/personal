@@ -3,8 +3,10 @@ package com.carlosx.rest.castor;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 import org.exolab.castor.mapping.GeneralizedFieldHandler;
+import org.exolab.castor.mapping.ValidityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +14,12 @@ public class DateTimeFieldHandler extends GeneralizedFieldHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(DateTimeFieldHandler.class);
 	private static String dateFormatPattern;
+	
+
+	@Override
+	public void setConfiguration(Properties config) throws ValidityException {
+		dateFormatPattern = config.getProperty("date-format");
+	}
 	
 	@Override
 	public Object convertUponGet(Object value) {

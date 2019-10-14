@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Configuration
 @EnableWebMvc
+@ComponentScan(basePackages  =  {"com.carlosx.rest.controller"}) //to scan for controllers!!!!!
 public class WebConfig implements WebMvcConfigurer {
 	
 	@Autowired

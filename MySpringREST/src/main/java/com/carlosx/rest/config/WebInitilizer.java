@@ -1,9 +1,6 @@
-package com.carlosx.rest;
+package com.carlosx.rest.config;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
-
-import com.carlosx.rest.config.DataServiceConfig;
-import com.carlosx.rest.config.WebConfig;
 
 public class WebInitilizer extends AbstractAnnotationConfigDispatcherServletInitializer {
 
@@ -23,7 +20,7 @@ public class WebInitilizer extends AbstractAnnotationConfigDispatcherServletInit
 
 	@Override
 	protected String[] getServletMappings() {
-		return new String[]{"/"};
+		return new String[]{"/*"};
 	}
 
 }
