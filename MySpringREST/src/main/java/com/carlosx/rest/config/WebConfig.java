@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,8 +24,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+@SuppressWarnings("deprecation")
 @Configuration
 @EnableWebMvc
+@Import({ SecurityConfig.class })
 @ComponentScan(basePackages  =  {"com.carlosx.rest.controller"}) //to scan for controllers!!!!!
 public class WebConfig implements WebMvcConfigurer {
 	

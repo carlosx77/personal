@@ -20,7 +20,7 @@ import com.carlosx.rest.entities.Singers;
 import com.carlosx.rest.services.SingerService;
 
 @Controller
-@RequestMapping(value = "/singer")
+@RequestMapping(value = "/rest/singer")
 public class SingerController {
 	final Logger logger = LoggerFactory.getLogger(SingerController.class);
 

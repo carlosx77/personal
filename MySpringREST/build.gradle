@@ -29,6 +29,7 @@ ext {
 	bootVersion = '2.0.6.RELEASE'
 	springSecurityVersion = '5.0.2.BUILD-SNAPSHOT'
 	
+	
 	//Database
 	//mariaDbVersion = '2.4.3'
 	//dbcpVersion = '2.1'
@@ -68,8 +69,11 @@ ext {
 			test              : "org.springframework:spring-test:$springVersion",
 			jms               : "org.springframework:spring-jms:$springVersion",
 			oxm               : "org.springframework:spring-oxm:$springVersion", //object to xml conversions
+			securityWeb       : "org.springframework.security:spring-security-web:$springSecurityVersion",
+			securityConfig    : "org.springframework.security:spring-security-config:$springSecurityVersion",
 			contextSupport    : "org.springframework:spring-context-support:$springVersion",
-			webflux           : "org.springframework:spring-webflux:$springVersion"
+			webflux           : "org.springframework:spring-webflux:$springVersion",
+			web				  : "org.springframework:spring-web:$springVersion"
 	]
 	
 	boot = [
@@ -153,7 +157,7 @@ repositories {
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     	compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
+	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
 	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient//,misc.lang3 //,misc.aspectjweaver
 	    compile db.mysql, db.h2
 	    compile web.servlet
