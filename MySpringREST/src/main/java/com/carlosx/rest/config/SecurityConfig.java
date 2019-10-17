@@ -26,7 +26,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configureGlobal (AuthenticationManagerBuilder auth) throws Exception {
 		logger.info("-------ZZZZZ Configuring authentication 1!!!! ");
 		try {
-			
 			User.withDefaultPasswordEncoder().username("prospring5").password("prospring5").roles("REMOTE").build();
 			//auth.inMemoryAuthentication().withUser("prospring5").password("{noop}prospring5").roles("REMOTE");
 		} catch (Exception e) {
@@ -46,12 +45,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Bean
     public UserDetailsService userDetailsService() {
-
         User.UserBuilder users = User.withDefaultPasswordEncoder();
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(users.username("prospring5").password("prospring5").roles("REMOTE").build());
         //manager.createUser(users.username("admin").password("password").roles("USER", "ADMIN").build());
         return manager;
-
     }
 }

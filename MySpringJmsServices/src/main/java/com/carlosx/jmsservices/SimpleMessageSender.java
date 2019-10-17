@@ -13,12 +13,9 @@ import org.springframework.stereotype.Component;
 
 @Component ("messageSender")
 public class SimpleMessageSender implements MessageSender {
-
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SimpleMessageSender.class);
-	
 	@Autowired
 	private JmsTemplate jmsTemplate;
-	
 	@Override
 	public void sendMessage(String message) {
 		jmsTemplate.setDeliveryDelay(5000L);

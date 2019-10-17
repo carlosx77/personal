@@ -12,15 +12,7 @@ buildscript {
 	}
 }
 
-plugins {
-    // Apply the java-library plugin to add support for Java Library
-    id 'java-library'
-    id 'war'
-    id 'eclipse-wtp'
-    id "com.bmuschko.tomcat" version "2.5"
-}
-
-apply plugin: "com.bmuschko.tomcat"
+apply plugin: 'org.springframework.boot'
 
 ext {
 	//spring libs
@@ -157,19 +149,11 @@ repositories {
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     	compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
+	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig, spring.contextSupport //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
 	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient//,misc.lang3 //,misc.aspectjweaver
 	    compile db.mysql, db.h2
 	    compile web.servlet
 	    //compile project (':MySpringTransactionAnnotations')
 	    
-		def tomcatVersion = '9.0.1'
-	    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-	           "org.apache.tomcat.embed:tomcat-embed-logging-juli:9.0.0.M6",
-	           "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 }
 
-tomcat {
-    httpProtocol = 'org.apache.coyote.http11.Http11Nio2Protocol'
-    ajpProtocol  = 'org.apache.coyote.ajp.AjpNio2Protocol'
-}
