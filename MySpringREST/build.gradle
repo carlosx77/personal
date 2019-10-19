@@ -8,11 +8,18 @@
 
 buildscript {
 	dependencies {
-	    classpath "com.bmuschko:gradle-tomcat-plugin:2.5"
+	    //classpath "com.bmuschko:gradle-tomcat-plugin:2.5"
 	}
 }
 
-apply plugin: 'org.springframework.boot'
+
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    id 'java-library'
+    id 'war'
+    id 'eclipse-wtp'
+    //id "com.bmuschko.tomcat" version "2.5"
+}
 
 ext {
 	//spring libs
