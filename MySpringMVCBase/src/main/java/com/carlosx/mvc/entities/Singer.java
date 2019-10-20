@@ -1,4 +1,4 @@
-package com.carlosx.mvc.entites;
+package com.carlosx.mvc.entities;
 
 import static javax.persistence.GenerationType.IDENTITY;
 

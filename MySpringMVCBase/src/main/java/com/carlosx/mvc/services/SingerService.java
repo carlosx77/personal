@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.carlosx.mvc.entites.Singer;
+import com.carlosx.mvc.entities.Singer;
 
 public interface SingerService {
 	public List<Singer> findAll ();

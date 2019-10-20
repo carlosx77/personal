@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.carlosx.mvc.entites.Singer;
+import com.carlosx.mvc.entities.Singer;
 import com.carlosx.mvc.services.SingerService;
 
 @Controller

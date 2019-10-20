@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.carlosx.mvc.entites.Singer;
+import com.carlosx.mvc.entities.Singer;
 import com.carlosx.mvc.repos.SingerRepository;
 import com.google.common.collect.Lists;
 
