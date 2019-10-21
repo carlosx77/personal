@@ -9,4 +9,5 @@
 
 rootProject.name = 'MySpringMVC'
 include ':MySpringMVCBase'
-project (':MySpringMVCBase').projectDir = new File("C:/Users/Carlosx/git/personal/MySpringMVCBase")
+project (':MySpringMVCBase').projectDir = new File("../MySpringMVCBase")
+//new File("C:/Users/peca7004/git/personal/MySpringMVCBase")
