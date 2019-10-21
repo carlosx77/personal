@@ -58,6 +58,8 @@ ext {
 	//web
 	tilesVersion = '3.0.7'
 	
+	javaxValidationVersion = '2.0.1.Final'
+	
 	
 	spring = [
 			context           : "org.springframework:spring-context:$springVersion",
@@ -74,6 +76,7 @@ ext {
 			oxm               : "org.springframework:spring-oxm:$springVersion", //object to xml conversions
 			securityWeb       : "org.springframework.security:spring-security-web:$springSecurityVersion",
 			securityConfig    : "org.springframework.security:spring-security-config:$springSecurityVersion",
+			securityTaglibs   : "org.springframework.security:spring-security-taglibs:$springSecurityVersion",
 			contextSupport    : "org.springframework:spring-context-support:$springVersion",
 			webflux           : "org.springframework:spring-webflux:$springVersion",
 			web				  : "org.springframework:spring-web:$springVersion"
@@ -113,6 +116,7 @@ ext {
 	    jpaModelGen: "org.hibernate:hibernate-jpamodelgen:$hibernateVersion",
 	    jpaApi     : "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:$hibernateJpaVersion",
 	    querydslapt: "com.mysema.querydsl:querydsl-apt:2.7.1",
+	    
 	    tx         : "com.atomikos:transactions-hibernate4:$atomikosVersion"
   	]
 	
@@ -127,6 +131,7 @@ ext {
 		jacksonDatabind: "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
 		httpclient   : "org.apache.httpcomponents:httpclient:$httpclientVersion",
 		io             : "commons-io:commons-io:2.5",
+		validation     : "javax.validation:validation-api:$javaxValidationVersion",
 		logback        : "ch.qos.logback:logback-classic:$logbackVersion"
 	]
 	
@@ -170,10 +175,10 @@ dependencies {
 	    //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
 	    
 	    compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig, spring.contextSupport //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
-	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient,misc.io//,misc.lang3 //,misc.aspectjweaver
+	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig, spring.contextSupport,spring.securityTaglibs //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
+	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient,misc.io,misc.validation//,misc.lang3 //,misc.aspectjweaver
 	    compile db.mysql, db.h2
-	    compile web.servlet//,web.tiles
+	    compile web.servlet,web.tiles
 	    
 	    compile project(':MySpringMVCBase')
 	    
