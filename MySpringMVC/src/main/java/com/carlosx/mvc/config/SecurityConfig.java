@@ -14,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -36,11 +38,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure (HttpSecurity http) throws Exception {
 		logger.info("-------ZZZZZ Configuring authentication 2!!!! ");
-		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-		.authorizeRequests().antMatchers("/*").permitAll()
-		.antMatchers("/rest/*").hasRole("REMOTE").anyRequest()
-		.authenticated().and().formLogin().and().httpBasic()
-		.and().csrf().disable();
+		http
+		.authorizeRequests()
+		.antMatchers("/*").permitAll()
+		.and()
+		.formLogin()
+		.usernameParameter("username")
+		.passwordParameter("password")
+		.loginProcessingUrl("/login")
+		.loginPage("/singers")
+		.failureUrl("/security/loginfail")
+		.defaultSuccessUrl("/singers")
+		.permitAll()
+		.and()
+		.logout()
+		.logoutUrl("/logout")
+		.logoutSuccessUrl("/singers")
+		.and()
+		.csrf().disable();
+		//csrfTokenRepository(repo());
 	}
 	
 	@Bean
@@ -51,4 +67,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //manager.createUser(users.username("admin").password("password").roles("USER", "ADMIN").build());
         return manager;
     }
+	
+	@Bean
+	public CsrfTokenRepository repo() {
+		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
+		repo.setParameterName("_csrf");
+		repo.setHeaderName("X-CSRF-TOKEN");
+		return repo;
+	}
 }

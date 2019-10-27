@@ -7,6 +7,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.ui.context.support.ResourceBundleThemeSource;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -17,7 +20,6 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.theme.CookieThemeResolver;
 import org.springframework.web.servlet.theme.ThemeChangeInterceptor;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
 import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
 import org.springframework.web.servlet.view.tiles3.TilesView;
@@ -28,36 +30,47 @@ import org.springframework.web.servlet.view.tiles3.TilesView;
 public class WebConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// here on /resources/** we need both ** if not it doesnt not work
 		registry.addResourceHandler("/resources/**").addResourceLocations("/").setCachePeriod(31556926);
 	}
-	
-	 @Bean
-	 UrlBasedViewResolver tilesViewResolver() {
-	   UrlBasedViewResolver tilesViewResolver =  new UrlBasedViewResolver();
-	   tilesViewResolver.setViewClass(TilesView.class);
-	   return tilesViewResolver;
-	 }
-	 @Bean
-	 TilesConfigurer tilesConfigurer()  {
-	   TilesConfigurer tilesConfigurer  =  new TilesConfigurer();
-	   tilesConfigurer.setDefinitions( "/WEB-INF/layouts/layouts.xml",
-	   "/WEB-INF/views/**/views.xml"
-	   );
-	   tilesConfigurer.setCheckRefresh(true);
-	   return tilesConfigurer;
-	 }
+
+	@Bean
+	UrlBasedViewResolver tilesViewResolver() {
+		UrlBasedViewResolver tilesViewResolver = new UrlBasedViewResolver();
+		tilesViewResolver.setViewClass(TilesView.class);
+		return tilesViewResolver;
+	}
+
+	@Bean
+	TilesConfigurer tilesConfigurer() {
+		TilesConfigurer tilesConfigurer = new TilesConfigurer();
+		tilesConfigurer.setDefinitions("/WEB-INF/layouts/layouts.xml", "/WEB-INF/views/singers/views.xml");
+		tilesConfigurer.setCheckRefresh(true);
+		return tilesConfigurer;
+	}
+
+	@Bean
+	public Validator validator() {
+		final LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+		validator.setValidationMessageSource(messageSource());
+		return validator;
+	}
+
+	// <=> <mvc:annotation-driven validator="validator"/>
+	@Override
+	public org.springframework.validation.Validator getValidator() {
+		return validator();
+	}
 
 	/*
 	 * Resolves static views
 	 */
-	/*@Bean
-	InternalResourceViewResolver viewResolver() {
-		InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-		resolver.setPrefix("/WEB-INF/views/");
-		resolver.setSuffix(".jspx");
-		resolver.setRequestContextAttribute("requestContext");
-		return resolver;
-	}*/
+	/*
+	 * @Bean InternalResourceViewResolver viewResolver() {
+	 * InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+	 * resolver.setPrefix("/WEB-INF/views/"); resolver.setSuffix(".jspx");
+	 * resolver.setRequestContextAttribute("requestContext"); return resolver; }
+	 */
 
 	@Override
 	public void addViewControllers(ViewControllerRegistry registry) {
@@ -86,34 +99,41 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Bean
 	ThemeChangeInterceptor themeChangeInterceptor() {
-	  return new ThemeChangeInterceptor();
+		return new ThemeChangeInterceptor();
 	}
-	
+
 	@Bean
 	LocaleChangeInterceptor localeChangeInterceptor() {
-		return new LocaleChangeInterceptor();
+		LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
+		interceptor.setParamName("lang");
+		return interceptor;
 	}
 
 	@Bean
 	CookieLocaleResolver localeResolver() {
 		CookieLocaleResolver cookieLocaleResolver = new CookieLocaleResolver();
-		//cookieLocaleResolver.setDefaultLocale(Locale.ENGLISH);
-		//cookieLocaleResolver.setCookieMaxAge(3600);
-		//cookieLocaleResolver.setCookieName("locale");
+		cookieLocaleResolver.setDefaultLocale(Locale.ENGLISH);
+		cookieLocaleResolver.setCookieMaxAge(3600);
+		cookieLocaleResolver.setCookieName("locale");
 		return cookieLocaleResolver;
 	}
-	
+
 	@Bean
-	ResourceBundleThemeSource themeSource()  {
-	  return new ResourceBundleThemeSource();
+	ResourceBundleThemeSource themeSource() {
+		return new ResourceBundleThemeSource();
 	}
-	
+
 	@Bean
 	CookieThemeResolver themeResolver() {
-	  CookieThemeResolver cookieThemeResolver = new CookieThemeResolver();
-	  cookieThemeResolver.setDefaultThemeName("standard");//will look for standard.properties on resources
-	  cookieThemeResolver.setCookieMaxAge(3600);
-	  cookieThemeResolver.setCookieName("theme");
-	  return  cookieThemeResolver;
+		CookieThemeResolver cookieThemeResolver = new CookieThemeResolver();
+		cookieThemeResolver.setDefaultThemeName("standard"); // will look for standard.properties on resources
+		cookieThemeResolver.setCookieMaxAge(3600);
+		cookieThemeResolver.setCookieName("theme");
+		return cookieThemeResolver;
+	}
+
+	@Bean
+	StandardServletMultipartResolver multipartResolver() {
+		return new StandardServletMultipartResolver();
 	}
 }

@@ -44,7 +44,7 @@
     <!-- Get the user locale from the page context (it was set by Spring MVC's locale resolver) -->
     <c:set var="userLocale">
         <c:set var="plocale">${pageContext.response.locale}</c:set>
-        <!--  c:out value="${fn:replace(plocale, '_', '-')}" default="en" /  -->
+        <c:out value="${fn:replace(plocale, '_', '-')}" default="en" />
     </c:set>
 
     <spring:message code="application_name" var="app_name" htmlEscape="false"/>

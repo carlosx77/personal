@@ -19,7 +19,11 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Entity
 @Table(name = "singer")
@@ -44,6 +48,10 @@ public class Singer implements Serializable {
 	@Column(name = "LAST_NAME")
 	private String lastName;
 
+	@NotNull(message="{validation.birthDate.NotBlank.message}")
+	@DateTimeFormat(pattern = "yyyy-MM-dd", iso = ISO.DATE)
+	//error message when date cant be parsed is on messages.properties with the name: typeMismatch.singer.birthDate
+	//the message is resolved using DefaultMessageCodesResolver (see doc to check how its done)
 	@Temporal(TemporalType.DATE)
 	@Column(name = "BIRTH_DATE")
 	private Date birthDate;
