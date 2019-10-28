@@ -41,6 +41,9 @@ ext {
 	hibernateJpaVersion = '1.0.0.Final'
 	atomikosVersion = '4.0.4' //JTA transaction manager for standalone app or web container environment (for use in a non JEE env)
 	
+	//validation:
+	javaxValidationVersion = '2.0.0.Final'
+	
 	//logging libs
 	slf4jVersion = '1.7.25'
 	logbackVersion = '1.2.3'
@@ -71,6 +74,7 @@ ext {
 			oxm               : "org.springframework:spring-oxm:$springVersion", //object to xml conversions
 			securityWeb       : "org.springframework.security:spring-security-web:$springSecurityVersion",
 			securityConfig    : "org.springframework.security:spring-security-config:$springSecurityVersion",
+			securityTaglibs   : "org.springframework.security:spring-security-taglibs:$springSecurityVersion",
 			contextSupport    : "org.springframework:spring-context-support:$springVersion",
 			webflux           : "org.springframework:spring-webflux:$springVersion",
 			web				  : "org.springframework:spring-web:$springVersion"
@@ -122,20 +126,22 @@ ext {
 		jms            : "javax.jms:javax.jms-api:$jmsVersion",
 		castor         : "org.codehaus.castor:castor-xml:$castorVersion",
 		jacksonDatabind: "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+		validation     : "javax.validation:validation-api:$javaxValidationVersion",
 		httpclient   : "org.apache.httpcomponents:httpclient:$httpclientVersion",
-		logback        : "ch.qos.logback:logback-classic:$logbackVersion"
+		logback        : "ch.qos.logback:logback-classic:$logbackVersion",
+		io             : "commons-io:commons-io:2.5"
 	]
 	
 	web = [
-		//tiles        : "org.apache.tiles:tiles-jsp:$tilesVersion",
-		//jstl         : "jstl:jstl:1.2",
+		tiles        : "org.apache.tiles:tiles-jsp:$tilesVersion",
+		jstl         : "jstl:jstl:1.2",
 		//bootstrap    : "org.webjars:bootstrap:$bootstrapVersion",
 		//jQuery       : "org.webjars:jquery:$jQueryVersion",
 		//thymeSecurity: "org.thymeleaf.extras:thymeleaf-extras-springsecurity4:$thymeSecurityVersion",
 		//tomcatWsApi  : "org.apache.tomcat:tomcat-websocket-api:$twsVersion",
 		//tomcatWsEmbed: "org.apache.tomcat.embed:tomcat-embed-websocket:$twsVersion",
 		//httpclient   : "org.apache.httpcomponents:httpclient:$httpclientVersion",
-		//websocket    : "javax.websocket:javax.websocket-api:1.1",
+		websocket    : "javax.websocket:javax.websocket-api:1.1",
 		servlet      : "javax:javaee-web-api:7.0"
 	]
 }
@@ -156,18 +162,17 @@ repositories {
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    	compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport
-	    // spring.securityWeb,spring.securityConfig 
+    	compile hibernate.jpaApi,hibernate.em,hibernate.validator //,hibernate.querydslapt
+	    compile spring.context,spring.data,spring.webmvc,spring.contextSupport,spring.securityWeb,spring.securityConfig,spring.securityTaglibs //,spring.oxm 
 	    
 	    ////////// OJO CON AGREGAR SECURITY WEB, UNA  APLICACION SIMPLE CON SPRING BOOT VA A PEDIR CREDENCIALES CON SOLO AGREGAR SECURITY WEB
 	    
 	     
 	    //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
-	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient//,misc.lang3 //,misc.aspectjweaver
-	    compile db.mysql, db.h2
-	    compile web.servlet
-	    compile boot.starter,boot.starterWeb,boot.springBootPlugin
+	    compile misc.slf4jJcl,misc.logback,misc.castor,misc.guava,misc.jacksonDatabind,misc.validation,misc.lang3,misc.io //,misc.aspectjweaver
+	    compile db.h2 //db.mysql, 
+	    compile web.servlet, web.tiles,web.jstl,web.websocket
+	    //compile boot.starter,boot.starterWeb,boot.springBootPlugin
 	    //compile project (':MySpringTransactionAnnotations')
 	    /*
 		def tomcatVersion = '9.0.1'

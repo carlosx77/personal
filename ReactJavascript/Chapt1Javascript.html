@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="utf-8">
+    <style media="screen">
+        #container {
+            display: flex;
+            justify-content: space-around;
+        }
+  
+        #container>div {
+            height: 5em;
+            width: 5em;
+            background-color: purple;
+        }
+      </style>
+    <title>Const</title>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+<h1>Const</h1>
+<p>Open the console</p>
+
+<h1>Click on a Box</h1>
+<div id="container"></div>
+
+<script type="text/babel">
+
+    // Declaring variables
+    var aVariable = true;
+    console.log (aVariable)
+
+    //declare constants
+    const aConstant = true;
+    //aConstant = false;  marks an error!!!!!
+
+    //declaring variables in javascript has a global scope, doesn't matter where you declare them (specially when using {},
+    //in java variables are scoped)
+    //even more, you can re-declare the same variable and affect the existin global variable with the new value
+    var javascript = "global";
+    if ( javascript ) {
+        var javascript = "block";
+        console.log ("block variable: ", javascript )
+    }
+    console.log ("global variable: ", javascript) //in java, this one is supposed to keep the global value but not
+
+    //to solve the overriding global variable problem, let was created, let declares the variable in a defined scope!
+    var javascript = "global";
+    if ( javascript ) {
+        let javascript = "block";
+        console.log ("block variable: ", javascript )
+    }
+    console.log ("global variable: ", javascript) //writes the global variable as it was not affected by the local one declared inside curly braces
+
+    //be carefull with variables on a for, you could end up with the same value for the variable
+    var div, 
+    container = document.getElementById ("container")
+
+    for ( var i = 0; i < 5; i++ ) {
+        div = document.createElement ("div")
+        div.onClick = function () {
+            alert ("This is box #"  + i )
+        }
+        container.appendChild(div)
+    }
+
+</script>
+</body>
+</html>

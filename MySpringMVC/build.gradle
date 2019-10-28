@@ -82,7 +82,7 @@ ext {
 			web				  : "org.springframework:spring-web:$springVersion"
 	]
 	
-	boot = [
+/*	boot = [
 			springBootPlugin: "org.springframework.boot:spring-boot-gradle-plugin:$bootVersion",
 			starter         : "org.springframework.boot:spring-boot-starter:$bootVersion",
 			starterWeb      : "org.springframework.boot:spring-boot-starter-web:$bootVersion",
@@ -98,7 +98,7 @@ ext {
 			starterSecurity : "org.springframework.boot:spring-boot-starter-security:$bootVersion",
 			starterBatch    : "org.springframework.boot:spring-boot-starter-batch:$bootVersion",
 			starterWebflux  : "org.springframework.boot:spring-boot-starter-webflux:$bootVersion"
-	]
+	]*/
 		
 	db = [
 			//mariaDb : "org.mariadb.jdbc:mariadb-java-client:$mariaDbVersion",
@@ -165,8 +165,10 @@ repositories {
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    	compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport
+    	//compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.validator
+	    //compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport
+	    //compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig, spring.contextSupport,spring.securityTaglibs //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
+	    
 	    // spring.securityWeb,spring.securityConfig 
 	    
 	    ////////// OJO CON AGREGAR SECURITY WEB, UNA  APLICACION SIMPLE CON SPRING BOOT VA A PEDIR CREDENCIALES CON SOLO AGREGAR SECURITY WEB
@@ -174,11 +176,10 @@ dependencies {
 	     
 	    //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
 	    
-	    compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
-	    compile spring.context,spring.data,spring.webmvc,spring.oxm,spring.contextSupport,spring.securityWeb,spring.securityConfig, spring.contextSupport,spring.securityTaglibs //,spring.webSocket,spring.webSocket,spring.messaging, spring.securityWeb
-	    compile misc.slf4jJcl,misc.logback,misc.Hornetq, misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient,misc.io,misc.validation//,misc.lang3 //,misc.aspectjweaver
-	    compile db.mysql, db.h2
-	    compile web.servlet,web.tiles
+	    //compile hibernate.jpaApi,hibernate.querydslapt,hibernate.em,hibernate.tx,hibernate.validator
+	    //compile misc.slf4jJcl,misc.logback,misc.jms,misc.castor,misc.guava,misc.jacksonDatabind,misc.httpclient,misc.io,misc.validation//,misc.lang3 //,misc.aspectjweaver
+	    //compile db.h2
+	    //compile web.servlet,web.tiles,web.jstl
 	    
 	    compile project(':MySpringMVCBase')
 	    

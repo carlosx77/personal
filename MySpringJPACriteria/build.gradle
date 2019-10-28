@@ -12,6 +12,7 @@ plugins {
 }
 
 
+
 	task copyDependencies(type: Copy) {
 		from configurations.compile
 		into 'build/libs'
