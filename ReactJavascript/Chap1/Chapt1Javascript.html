@@ -15,13 +15,10 @@
             background-color: purple;
         }
       </style>
-    <title>Const</title>
+    <title>Let</title>
     <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 </head>
-<body>
-<h1>Const</h1>
-<p>Open the console</p>
-
+<body> <!-- h1>Const</h1> <p>Open the console</p -->
 <h1>Click on a Box</h1>
 <div id="container"></div>
 
@@ -53,17 +50,213 @@
     }
     console.log ("global variable: ", javascript) //writes the global variable as it was not affected by the local one declared inside curly braces
 
-    //be carefull with variables on a for, you could end up with the same value for the variable
-    var div, 
-    container = document.getElementById ("container")
 
-    for ( var i = 0; i < 5; i++ ) {
-        div = document.createElement ("div")
-        div.onClick = function () {
-            alert ("This is box #"  + i )
+    //be carefull with variables on a for, you could end up with the same value for the variable (to see this example change let by var)
+  var div, 
+    container = document.getElementById('container')
+
+    for ( let i=0; i<5; i++ ) {
+        div = document.createElement('div')
+        div.onclick = function() {
+            alert('This is box #'  + i )
         }
         container.appendChild(div)
     }
+
+    //template strings:
+    //traditional string concatenation
+    var lastName = 'Perez'
+    var firstName = 'Carlos'
+    var middleName = 'Alberto'
+    console.log (lastName + ', ' + firstName + ', ' + middleName)
+    //the same using template:
+    console.log (`${lastName}, ${firstName}, 
+        ${middleName}`)
+    //Usefull not only with strings, it can be used with any javascripts that returns a value
+    //also can include HTML tags inside (see book example)
+
+    logCompliment(); //functions can be called before declaration
+
+    //declaring a function
+    function logCompliment () {
+        console.log ("Your are doing great!!!")
+    }
+
+    //Function expressions
+    //Function expression can not be called before its declared
+    //anotherLogCompliment()
+    const anotherLogCompliment = function () {
+        console.log ("Another you are doing great!!!")
+    }
+
+    anotherLogCompliment()
+
+    //can have or not have default values
+    const createCompliment = function (firstName = "Jose", message = "You are not so cool!!") {
+        return `${firstName} ${message}`
+    }
+
+    console.log (createCompliment('Carlos', 'Your are so cool!!!'))
+    console.log (createCompliment())
+
+    const defaultPerson = {
+        name: {
+            first: "Shane",
+            last: "McConkey"
+        },
+            favActivity: "skiing"
+    };
+    //default parameters can be any type
+    function logActivity(person = defaultPerson) {
+        console.log(`${person.name.first} loves ${person.favActivity}`);
+    }
+
+    logActivity();
+
+    //ARROW FUNCTIONS
+    //a normal function can be rewritten as an arrow function
+    //Normal function
+    const lordify = function (firstName) {
+        return `${firstName} of Canterbury`;
+    };
+
+    console.log(lordify('Carlos'));
+
+    //rewritten as an Arrow Function
+    const lordifyArrow = firstName => `${firstName} of Canterbury`;
+
+    console.log(lordifyArrow('CarlosV'));
+
+    //Notation
+    // const functionName = (parameters) => code;
+    // or
+    // const functionName = (parameters) => { lines; of; code; };
+    // In case you need to return an object, it can be done using parenthesis!!!
+    // WATCH THIS AS IS A COMMON BUG, if parenthesis is not used 
+    // then you get the following error: "Unexpected token"
+
+    //Example of unexpected token!!! uncomment to see the error
+    //const person = (firstName, lastName) => {
+    //    first:firstName,
+    //    last:lastNAme
+    //}
+
+    const person = (firstName, lastName) => ({
+        first:firstName,
+        last:lastName
+    })
+
+    console.log(person("Brad", "Janson"));
+
+
+    //regular functions do not hide or block "this"
+    // In this example you get an error:
+    // TypeError: Cannot read property 'join' of undefined
+    /* const taoe = {
+        mountains: ["Freel", "Rose", "Rubicon"],
+        print: function (delay = 1000) {
+            setTimeout ( function () {
+                console.log (this.mountains.join (", "));
+            }, delay)
+        }
+    }
+
+    taoe.print(); */
+
+    //to solve this use arrow function
+    const taoe = {
+        mountains: ["Freel", "Rose", "Rubicon"],
+        print: function (delay = 100) {
+            setTimeout(() => {
+                console.log (this.mountains.join(", "))
+            }, delay);
+        }
+    }
+
+    taoe.print();
+
+    // Be carefulll when using doble arrow funcions
+    /*const tahoeDouble = {
+        mountains: ["Freel", "Rose", "Rubicon"],
+        print: (delay = 1000) => {
+            setTimeout(() => {
+                console.log(this.mountains.join(", "));
+            }, delay);
+        }
+    };*/
+    // calling the previous method results in:
+    // Uncaught TypeError: Cannot read property 'mountains' of undefined
+    //tahoeDouble.print();
+
+    // Destructuring objects or desestructurando objetos
+    // this allows to create a copy of a property of an object
+    const sandwich = {
+        bread: "dutch crunch",
+        meat: "tuna",
+        cheese: "swiss",
+        toppings: ["lettuce", "tomato", "mustard"]
+    };
+
+    //const { bread, meat } = sandwich; //uncomment to see behaviour withouth let
+
+    // bread = "new bread"; //not possible unless you use "let"
+
+    //console.log (bread, meat);
+
+    let { bread, meat } = sandwich;
+    console.log (bread, meat);
+
+    bread = "garlic"; //we dont modify sandwich value because we use let
+    meat = "turkey"; //we dont modify sandwich value because we use let
+
+    console.log (bread);
+    console.log (meat);
+
+    console.log (sandwich.bread, sandwich.meat);
+
+    // Destructiring parameters on funcions
+
+    /*
+    Lets suppose the following
+const lordify = regularPerson => {
+  console.log(`${regularPerson.firstname} of Canterbury`);
+};
+
+const regularPerson = {
+  firstname: "Bill",
+  lastname: "Wilson"
+};
+
+lordify(regularPerson); // Bill of Canterbury    
+
+    */
+
+    const regularPerson = {
+        firstname: "Bill",
+        lastname: "Wilson"
+    }
+
+    const lordify3 = ({ firstname }) => {
+        console.log (`${firstname} of Canterbury`)
+    }
+
+    lordify3 (regularPerson);
+
+    //lets do the same but with a nested object
+    const regularPerson2 = {
+        firstname: "Bill",
+        lastname: "Wilson",
+        spouse: {
+            firstname: "Phil",
+            lastname: "Wilson"
+        }
+    };
+
+    const lordify4 = ( {spouse: {firstname} } ) => { console.log (`${firstname} spose of Canterbury` ) };
+
+    lordify4(regularPerson2)
+    lordify4(regularPerson)
+
 
 </script>
 </body>
