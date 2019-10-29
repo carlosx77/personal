@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="minimum-scale=1.0, width=device-width, maximum-scale=1.0, user-scalable=no"/>
+    <meta charset="utf-8">
+    <title>What It Means to Be Functional</title>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+<h1>Functional JavaScript</h1>
+<p>Open the console</p>
+<script type="text/babel">
+
+// Functions on Javascript are variables!!!!!!
+    var log = function(message) {
+      console.log(message)
+    }
+
+    log("In JavaScript functions are variables")
+
+// Also inside an array we can have a function
+const messages = [
+  "They can be inserted into arrays",
+  message => console.log(message),
+  "like variables",
+  message => console.log(message)
+];
+
+messages[1](messages[0]); // They can be inserted into arrays
+messages[3](messages[2]); // like variables
+
+// Also a function can be a parameter
+const insideFn = logger => {
+  logger("They can be sent to other functions as arguments");
+};
+  
+insideFn(message => console.log(message));
+
+// Also functions can be returned from another function
+const createScream = function(logger) {
+  return function(message) {
+    logger(message.toUpperCase() + "!!!");
+  };
+};
+
+const scream = createScream(message => console.log(message));
+
+scream("functions can be returned from other functions");
+scream("createScream returns a function");
+scream("scream invokes that returned function");
+
+
+// The same can be achieved using double arrow function:
+const createScream2 = logger2 => message2 => {
+  logger2(message2.toUpperCase() + "!!!");
+};
+
+const scream2 = createScream2(message2 => console.log(message2));
+scream2 ("High order function")
+
+
+// Inmutability
+
+// Parameters on a function are actual references to the original object or 
+// variable, so if you change the value inside a function then the 
+// variable outside the function changes its value
+let color_lawn = {
+  title: "lawn",
+  color: "#00FF00",
+  rating: 0
+};
+
+function rateColor (color, rating) {
+  color.rating = rating;
+  return color;
+};
+
+console.log ("Mantiene el mismo rating adentro y afuera: ")
+console.log (rateColor(color_lawn, 5).rating);
+console.log (color_lawn.rating);
+
+//to get a new object we use Object.assign
+
+let color_lawn2 = {
+  title: "lawn",
+  color: "#00FF00",
+  rating: 0
+};
+
+const rateColorNewObject = function (color, rating) {
+  return Object.assign ( {}, color:color, { rating: rating });
+};
+
+console.log ("Cambia rating adentro y afuera se mantiene: ")
+console.log (rateColorNewObject(color_lawn2, 5).rating);
+console.log (color_lawn2.rating);
+
+// we can rewrite the functino using arrow operator
+
+const rateColor3 = (color, rating) => ( { 
+  ...color,
+  rating
+} )
+console.log ("Cambia rating adentro y afuera se mantiene con arrow function: ")
+console.log (rateColor3 (color_lawn2.color, 4).rating);
+console.log (color_lawn2.rating)
+
+// Adding elements to an array using push
+let list = [{ title: "Rad Red" }, { title: "Lawn" }, { title: "Party Pink" }];
+const addColor = function (title, colors) {
+  colors.push ({title:title});
+  return colors;
+}
+console.log ("Using not mutable (immutable) push to edit an array");
+console.log (addColor("new color", list).length);
+console.log (list.length); //push is not immutable
+
+// if we want to mutate the object we need to use concat
+console.log ("Using mutable concat to edit an array");
+const addColorMutable = (title, array) => array.concat({title});
+console.log(addColorMutable("Glam green", list).length);
+console.log (list.length);
+
+//also we can use spread operator
+const addColor2 = (title, list) => [...list, { title }];
+
+// pure function, a function that does not change the value of the parameters or 
+// doesnt change values of variables out of its scope
+// do not cause sideeffects, set global variables, 
+// or change anything about applicationstate. They treat 
+// their arguments as immutable data
+const frederick = {
+  name: "Frederick Douglass",
+  canRead: false,
+  canWrite: false
+};
+
+function selfEducate() {
+  frederick.canRead = true;
+  frederick.canWrite = true;
+  return frederick;
+}
+
+// even in the case that selfEducate receives a frederick as an attribute
+// it would still modify the variable
+selfEducate();
+console.log(frederick);
+
+// they way to treat the parameter as inmutable is returning a new object
+
+const frederick2 = {
+  name: "Frederick Douglass",
+  canRead: false,
+  canWrite: false
+};
+
+const seflEducatedImmutable = person => ({
+  ...person,
+  canRead: true,
+  canWrite: true
+});
+
+console.log(selfEducate(frederick2));
+console.log(frederick2);
+
+// REACT expressed the UI with pure functions.
+// when writing functions follow this rules:
+// 1.- function should take at least one parameter
+// 2.- function should return a value or another function
+// 3.- function should not change or mutate any of its arguments 
+//     (or another external variable to the function itself)
+
+
+// DATA TRANSFORMATION (aka ARRAY TRANSFORMATION)
+// LEARN Array.map and Array.reduce IS A MUST
+// Array.filter filtra el arreglo
+// Array.map permite modificar el arreglo (agregar mas elementos)
+// Array.reduce "transforms" the array into any value (can be number, string, boolean, object)
+// 
+
+const schools = ["Yorktown", "Washington & Lee", "Wakefield"];
+
+// filter an array with string starting with W
+const wSchools = schools.filter ( school => school[0] === "W" );
+console.log ("Elements starting with W");
+console.log (wSchools);
+// there are other methods like Array.pop or Array.splice
+// but they are not inmutable, they change the original Array
+// to remove items also use filter
+const cutSchools = (cut, list) => list.filter(school => school !== cut);
+console.log (cutSchools("Washington & Lee", schools).join(", "));
+
+// Create a new array based on another
+const highSchools = schools.map (school => `${school} High School`)
+console.log (highSchools.join("\n"));
+
+//Edit an specific element of an array
+let schools2 = [
+  { name: "Yorktown" },
+  { name: "Stratford" },
+  { name: "Washington & Lee" },
+  { name: "Wakefield" }
+];
+
+const editName = (oldName, name, arr) => 
+  arr.map (item => {
+    if ( item.name === oldName ) {
+      return {
+        ...item,
+        name
+      };
+    } else {
+      return item;
+    }
+  })
+let updatedSchools = editName("Stratford", "HB Woodlawn", schools2);
+console.log(updatedSchools[1]); // { name: "HB Woodlawn" }
+console.log(schools2[1]); // { name: "Stratford" }
+
+// Can be rewritten on one single line:
+const shortEditName = (oldName, name, arr) => arr.map (item => (item.name === oldName ? {...item, name} : item ));
+let updatedSchools2 = shortEditName ("Stratford", "HB Woodlawn2", schools2);
+console.log (updatedSchools2[1]);
+
+// create an array from an object
+const schools3 = {
+  Yorktown: 10,
+  "Washington & Lee": 2,
+  Wakefield: 5
+}
+const schoolArray = Object.keys(schools).map ( key => ({
+  name: key,
+  wins: schools[key]
+}) )
+
+console.log (schoolArray);
+
+// obtain the maximun value on an array:
+const ages = [21, 18, 42, 40, 64, 63, 34];
+const max = ages.reduce((max,value) => (value>max? value:max), 0 );
+
+console.log ("Max age: " + max);
+
+// Array.reduceRight does the same as reduce but starting from the end (its like a "reduce inverted")
+
+// HIGH ORDER FUNCTIONS
+// Functions that receive a function as a parameter or return a function
+const invokeIf = (condition, fnTrue, fnFalse) => condition ? fnTrue() : fnFalse();
+const showWelcome = () => console.log ("Welcome!!!");
+const showUnauthorized = () => console.log("Unauthorized!!!");
+invokeIf (true, showWelcome, showUnauthorized);
+invokeIf (false, showWelcome, showUnauthorized);
+
+
+</script>
+</body>
+</html>
