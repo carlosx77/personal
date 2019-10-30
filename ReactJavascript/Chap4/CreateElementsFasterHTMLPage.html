@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>React Samples</title>
+  </head>
+  <body>
+    <!-- Target container -->
+    <div id="root"></div>
+
+    <!-- React library & ReactDOM (Development Version)-->
+    <script src="https://unpkg.com/react@16.8.6/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.8.6/umd/react-dom.development.js"></script>
+
+
+    <script>
+        // Pure React and JavaScript code
+
+        const items = [
+            "2 lb salmon",
+            "5 sprigs fresh rosemary",
+            "2 tablespoons olive oil",
+            "2 small lemons",
+            "1 teaspoon kosher salt",
+            "4 cloves of chopped garlic"
+        ];
+
+        const instructions = [
+            "Preheat the oven to 375 degrees.",
+            "Lightly coat aluminum foil with oil.",
+            "Place salmon on foil.",
+            "Cover with rosemary, sliced lemons, chopped garlic.",
+            "Bake for 15-20 minutes until cooked through.",
+            "Remove from oven."
+        ]
+
+        const page = 
+        React.createElement (
+            "section",
+            { id: "backed-salmon"},
+            React.createElement ("h1", null, "Baked Salmon"),
+            React.createElement (
+                "ul", 
+                { className: "ingredients"}, 
+                items.map ( (ingredient, i ) => React.createElement("li", {key: i}, ingredient) )
+            ),
+            React.createElement ("h2", null, "Instructions"),
+            React.createElement (
+                "section",
+                {className: "instructions" },
+                instructions.map ( (instruction, i) => React.createElement("p", {key: i}, instruction) )
+            )
+        );
+        
+        //ReactDOM.render(dish, document.getElementById("root"));
+        // on reent versions of react we can add an array of elements
+        ReactDOM.render(page, document.getElementById("root"));
+    </script>
+  </body>
+</html>
