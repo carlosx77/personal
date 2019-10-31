@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>React Examples</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- React Library & React DOM -->
+    <script src="https://unpkg.com/react@16.8.6/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.8.6/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      // JSX code here. Or link to separate JavaScript file that contains JSX.
+    const { render } = ReactDOM
+    const data = [
+        {
+            "name": "Baked Salmon",
+            "ingredients": [
+                { "name": "Salmon", "amount": 1, "measurement": "l lb" },
+                { "name": "Pine Nuts", "amount": 1, "measurement": "cup" },
+                { "name": "Butter Lettuce", "amount": 2, "measurement": "cups" },
+                { "name": "Yellow Squash", "amount": 1, "measurement": "med" },
+                { "name": "Olive Oil", "amount": 0.5, "measurement": "cup" },
+                { "name": "Garlic", "amount": 3, "measurement": "cloves" }
+            ],
+            "steps": [
+                "Preheat the oven to 350 degrees.",
+                "Spread the olive oil around a glass baking dish.",
+                "Add the salmon, garlic, and pine nuts to the dish.",
+                "Bake for 15 minutes.",
+                "Add the yellow squash and put back in the oven for 30 mins.",
+                "Remove from oven and let cool for 15 minutes. Add the lettuce and serve."
+            ]
+        },
+        {
+            "name": "Fish Tacos",
+            "ingredients": [
+                { "name": "Whitefish", "amount": 1, "measurement": "l lb" },
+                { "name": "Cheese", "amount": 1, "measurement": "cup" },
+                { "name": "Iceberg Lettuce", "amount": 2, "measurement": "cups" },
+                { "name": "Tomatoes", "amount": 2, "measurement": "large"},
+                { "name": "Tortillas", "amount": 3, "measurement": "med" }
+            ],
+            "steps": [
+                "Cook the fish on the grill until hot.",
+                "Place the fish on the 3 tortillas.",
+                "Top them with lettuce, tomatoes, and cheese"
+            ]
+        }
+    ];
+
+    function Ingredient ({ingredient}) {
+        return (
+            <li>{ingredient.name}</li>
+        );
+    } 
+
+    function IngredientsList ({name, ingredients}) {
+        return (
+            <>
+            <h2>{name}</h2>
+            <ul className="ingredients">
+                {ingredients.map((ingredient, i) => (<Ingredient key={i} ingredient={ingredient}/>))}
+            </ul>
+            </>
+        );
+    }
+
+    function Instructions ({title, steps}) {
+        return (
+            <section className="instructions">
+                <h2>{title}</h2>
+                { steps.map( (step, i) => <p key={i}>{step}</p> ) }
+            </section>
+        );
+    }
+    
+    // function to render an individual Recipe
+    //this can be declared as a funcion or as an arrow function:
+    // const funct = (params) =>
+    const Recipe = ({ name, ingredients, steps }) => (
+        <section id={name.toLowerCase().replace(/ /g, "-")}>
+            <IngredientsList name={name} ingredients={ingredients}/>
+            <Instructions title="Cooking Instructions" steps={steps}/> 
+        </section>
+        //por que aqui necesito la variable y en ingredientes solo ...ingredient???
+            //por que aqui no estoy dentro de un map!!!!!
+    )
+
+    //OTHER WAYS TO REWRITE THE SAME FUNCTION:
+    /*
+    const Recipe = ({ name, ingredients, steps }) =>
+    <section id={name.toLowerCase().replace(/ /g, "-")}>
+        <h1>{name}</h1>
+        <ul className="ingredients">
+            {ingredients.map((ingredient, i) =>
+                <li key={i}>{ingredient.name}</li>
+            )}
+        </ul>
+        <section className="instructions">
+            <h2>Cooking Instructions</h2>
+            {steps.map((step, i) =>
+                <p key={i}>{step}</p>
+            )}
+        </section>
+    </section>*/
+
+    /* or as a function like the Menu function */
+
+
+    // a function to render a Menu of recipes
+    //<>
+    function Menu (props) {
+        return (
+            <article>
+                <header>
+                    <h1>{props.title}</h1>
+                </header>
+                <div className="recipes">
+                    { props.recipes.map((recipe, i) => <Recipe key={i} {...recipe} />) }
+                </div>
+            </article>
+        );
+    }
+    // a call to ReacDOM.render to render the Menu in current DOM
+    ReactDOM.render ( 
+        <Menu recipes={data} title="Delicious Recipes" />,
+        document.getElementById("root")
+    )
+
+    </script>
+  </body>
+</html>
