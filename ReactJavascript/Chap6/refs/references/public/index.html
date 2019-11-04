@@ -24,12 +24,11 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>React App222</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -41,5 +40,48 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
-  
+  <script type="text/babel">
+
+    const { Component } = React
+    const { render } = ReactDOM
+
+    class AddColorForm extends Component {
+      constructor(props) {
+        super(props)
+        this.submit = this.submit.bind(this)
+      }
+      submit(e) {
+        const { _title, _color } = this.refs
+        e.preventDefault();
+        this.props.onNewColor(_title.value, _color.value)
+        _title.value = '';
+        _color.value = '#000000';
+        _title.focus();
+      }
+      render() {
+          return (
+              <form onSubmit={this.submit}>
+                  <input ref="_title"
+                         type="text"
+                         placeholder="color title..." required/>
+                  <input ref="_color"
+                         type="color" required/>
+                  <button>ADD</button>
+              </form>
+          )
+      }
+    }
+
+    const logColor = (title, color) =>
+        console.log(`New Color: ${title} | ${color}`)
+
+    render(
+      <AddColorForm onNewColor={(title, color) => {
+          console.log(`TODO: add new ${title} and ${color} to the list`)
+          console.log(`TODO: render new UI with new Color`)
+      }} />,
+      document.getElementById('react-container')
+    )
+
+</script>
 </html>

@@ -1,0 +1,17 @@
+MySpringREST/bin/main/castor.properties
+MySpringREST/bin/main/com/carlosx/rest/castor/DateTimeFieldHandler.class
+MySpringREST/bin/main/com/carlosx/rest/client/RestClientConfig.class
+MySpringREST/bin/main/com/carlosx/rest/config/DataServiceConfig.class
+MySpringREST/bin/main/com/carlosx/rest/config/SecurityConfig.class
+MySpringREST/bin/main/com/carlosx/rest/config/SecurityWebApplicationInitializer.class
+MySpringREST/bin/main/com/carlosx/rest/config/WebConfig.class
+MySpringREST/bin/main/com/carlosx/rest/config/WebInitilizer.class
+MySpringREST/bin/main/com/carlosx/rest/controller/SingerController.class
+MySpringREST/bin/main/com/carlosx/rest/entities/Singer.class
+MySpringREST/bin/main/com/carlosx/rest/entities/Singers.class
+MySpringREST/bin/main/com/carlosx/rest/main/RestClientTest.class
+MySpringREST/bin/main/com/carlosx/rest/repositories/SingerRepository.class
+MySpringREST/bin/main/com/carlosx/rest/services/DBInitializer.class
+MySpringREST/bin/main/com/carlosx/rest/services/SingerService.class
+MySpringREST/bin/main/com/carlosx/rest/services/SingerServiceImpl.class
+MySpringREST/bin/main/spring/oxm-mapping.xml
