@@ -1,54 +1,41 @@
 import React from "react";
 import {Component} from "react";
 import {connect} from 'react-redux';
-import {increment, decrement, reset} from '../Actions'
+import {increment, decrement, reset} from './CounterActions'
 
 function mapStateToProps (state) {
+    console.log("Estate: ", state);
     return {
-        count: state.count
+        count: state.count.count
     };
 };
 
-export function incrementCounter (state) {
-    return  {
-        count: state.count + 1
-      };
-};
-
-export function decrementCounter (state) {
-    return {
-        count: state.count - 1
-    };
-};
-
-export function resetCounter (state) {
-    return {
-        count: 0
-    };
-};
 
 class Counter extends Component {
-    //state = {count: 0}
+    state = {
+        count:0
+    };
 
-
+//state = {count: 0}
     increment = () => {
-        /*this.setState ({
-            count: this.state.count + 1
-        })*/
-        this.props.dispatch(increment());
+    /*this.setState ({
+        count: this.state.count + 1
+    })*/
+    this.props.dispatch(increment());
     };
-
+    
     decrement = () => {
-        /*this.setState ({
-            count:this.state.count - 1
-        })*/
-        this.props.dispatch(decrement());
+    /*this.setState ({
+        count:this.state.count - 1
+    })*/
+    this.props.dispatch(decrement());
     };
-
+    
     reset = () => {
-        this.props.dispatch(reset())
+    this.props.dispatch(reset())
     }
-
+    
+      
     render () {
         return (
             <div>

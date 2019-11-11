@@ -1,8 +1,4 @@
-import {
-    FETCH_USERS_BEGIN,
-    FETCH_USERS_SUCCESS,
-    FETCH_USERS_FAILURE
-} from './UserActions';
+import { FETCH_USERS_BEGIN, FETCH_USERS_SUCCESS, FETCH_USERS_FAILURE } from './UserActions';
 
 const initialState = {
     users: [],
@@ -11,7 +7,7 @@ const initialState = {
 }
 
 export default function userReducer (state=initialState, action) {
-    console.log ("Accion: ", action)
+    console.log ("Accion: ", action, "state: ", state)
     switch (action.type) {
         case FETCH_USERS_BEGIN:
             return { 
@@ -31,7 +27,7 @@ export default function userReducer (state=initialState, action) {
                 return {
                     ...state,
                     loading: false,
-                    users: action.payload['results']
+                    users: action.payload['users']
                 }
             }
 
