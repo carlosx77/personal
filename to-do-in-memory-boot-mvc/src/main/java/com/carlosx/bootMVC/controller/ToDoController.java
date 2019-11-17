@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,9 +63,21 @@ public class ToDoController {
 		return ResponseEntity.ok().header("Location", location.toString()).build();
 	}
 
-	@RequestMapping(value = "/todo", method = { RequestMethod.POST, RequestMethod.PUT })
+	@PostMapping(value = "/todo{id}", name = "/todo{id}")
 	//@PutMapping ("/todo/{id}")
-	public ResponseEntity<?> createToDo(@Valid @RequestBody ToDo toDo, Errors errors) {
+	public ResponseEntity<?> createToDo(@Valid @RequestBody (required = false) ToDo toDo, Errors errors) {
+		if (errors.hasErrors()) {
+			return ResponseEntity.badRequest().body(ToDoValidationErrorBuilder.fromBindingErrors(errors));
+		}
+		ToDo result = repository.save(toDo);
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(result.getId())
+				.toUri();
+		return ResponseEntity.created(location).build();
+	}
+	
+	@PutMapping(value = "/todo")
+	//@PutMapping ("/todo/{id}")
+	public ResponseEntity<?> createToDo2(@Valid @RequestBody (required = false) ToDo toDo, Errors errors) {
 		if (errors.hasErrors()) {
 			return ResponseEntity.badRequest().body(ToDoValidationErrorBuilder.fromBindingErrors(errors));
 		}
