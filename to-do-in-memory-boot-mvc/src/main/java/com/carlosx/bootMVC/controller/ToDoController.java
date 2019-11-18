@@ -63,7 +63,8 @@ public class ToDoController {
 		return ResponseEntity.ok().header("Location", location.toString()).build();
 	}
 
-	@PostMapping(value = "/todo{id}", name = "/todo{id}")
+	@RequestMapping(value = "/todo{id}", name = "/todo{id}", method= {RequestMethod.POST, RequestMethod.PUT})
+	//@PostMapping(value = "/todo{id}", name = "/todo{id}")
 	//@PutMapping ("/todo/{id}")
 	public ResponseEntity<?> createToDo(@Valid @RequestBody (required = false) ToDo toDo, Errors errors) {
 		if (errors.hasErrors()) {
@@ -75,7 +76,7 @@ public class ToDoController {
 		return ResponseEntity.created(location).build();
 	}
 	
-	@PutMapping(value = "/todo")
+	//@PutMapping(value = "/todo/{id}")
 	//@PutMapping ("/todo/{id}")
 	public ResponseEntity<?> createToDo2(@Valid @RequestBody (required = false) ToDo toDo, Errors errors) {
 		if (errors.hasErrors()) {
