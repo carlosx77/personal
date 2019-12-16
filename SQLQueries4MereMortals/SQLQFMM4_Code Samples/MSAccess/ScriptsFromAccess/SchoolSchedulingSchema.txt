@@ -1,0 +1,407 @@
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Buildings
+	BuildingCode	nvarchar	3	Yes		Yes
+	BuildingName	nvarchar	25			
+	NumberOfFloors	smallint	2			
+	ElevatorAccess	bit	1		0	
+	SiteParkingAvailable	bit	1		0	
+ 
+Indexes for Buildings
+Index Name	Attributes / Field Names
+NumberOfFloors	
+	NumberOfFloors
+ 
+PrimaryKey	Primary
+	BuildingCode
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Categories
+	CategoryID	nvarchar	10	Yes		Yes
+	CategoryDescription	nvarchar	75			
+	DepartmentID	int	4		0		Departments.DepartmentID
+ 
+Indexes for Categories
+Index Name	Attributes / Field Names
+DepartmentsCategories	
+	DepartmentID
+ 
+PrimaryKey	Primary
+	CategoryID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Class_Rooms
+	ClassRoomID	int	4	Yes		Yes
+	BuildingCode	nvarchar	3				Buildings.BuildingCode
+	PhoneAvailable	bit	1		0	
+	Capacity	smallint	2			
+ 
+Indexes for Class_Rooms
+Index Name	Attributes / Field Names
+BuildingsClass_Rooms	
+	BuildingCode
+ 
+PrimaryKey	Primary
+	ClassRoomID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Classes
+	ClassID	int	4	Yes		Yes
+	SubjectID	int	4		0		Subjects.SubjectID
+	ClassRoomID	int	4		0		Class_Rooms.ClassRoomID
+	Credits	tinyint	1		0	
+	SemesterNumber	smallint	2			
+	StartDate	date	8			
+	StartTime	time	8			
+	Duration	smallint	2		0	
+	MondaySchedule	bit	1		0	
+	TuesdaySchedule	bit	1		0	
+	WednesdaySchedule	bit	1		0	
+	ThursdaySchedule	bit	1		0	
+	FridaySchedule	bit	1		0	
+	SaturdaySchedule	bit	1		0	
+ 
+Indexes for Classes
+Index Name	Attributes / Field Names
+Class_RoomsClasses	
+	ClassRoomID
+ 
+PrimaryKey	Primary
+	ClassID
+ 
+SubjectsClasses	
+	SubjectID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Departments
+	DepartmentID	int	4	Yes		Yes
+	DeptName	nvarchar	50			
+	DeptChair	int	4		0		Staff.StaffID
+ 
+Indexes for Departments
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	DepartmentID
+ 
+StaffDepartments	
+	DeptChair
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Faculty
+	StaffID	int	4	Yes		Yes	Staff.StaffID
+	Title	nvarchar	50			
+	Status	nvarchar	12			
+	Tenured	bit	1		0	
+ 
+Indexes for Faculty
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	StaffID
+ 
+StaffFaculty	Unique
+	StaffID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Faculty_Categories
+	StaffID	int	4	Yes		Yes	Faculty.StaffID
+	CategoryID	nvarchar	10	Yes	'ACC'	Yes	Categories.CategoryID
+ 
+Indexes for Faculty_Categories
+Index Name	Attributes / Field Names
+CategoriesFaculty_Categories	
+	CategoryID
+ 
+FacultyFaculty_Categories	
+	StaffID
+ 
+PrimaryKey	Primary
+	StaffID
+	CategoryID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Faculty_Classes
+	ClassID	int	4	Yes		Yes	Classes.ClassID
+	StaffID	int	4	Yes		Yes	Faculty.StaffID	Staff.StaffID
+ 
+Indexes for Faculty_Classes
+Index Name	Attributes / Field Names
+ClassesFaculty_Classes	
+	ClassID
+ 
+FacultyFaculty_Classes	
+	StaffID
+ 
+PrimaryKey	Primary
+	ClassID
+	StaffID
+ 
+StaffFaculty_Classes	
+	StaffID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Faculty_Subjects
+	StaffID	int	4	Yes	0	Yes	Faculty.StaffID
+	SubjectID	int	4	Yes	0	Yes	Subjects.SubjectID
+	ProficiencyRating	float(24)	4		0	
+ 
+Indexes for Faculty_Subjects
+Index Name	Attributes / Field Names
+FacultyFaculty_Subjects	
+	StaffID
+ 
+PrimaryKey	Primary
+	StaffID
+	SubjectID
+ 
+SubjectsFaculty_Subjects	
+	SubjectID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Majors
+	MajorID	int	4	Yes		Yes
+	Major	nvarchar	20			
+ 
+Indexes for Majors
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	MajorID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Staff
+	StaffID	int	4	Yes		Yes
+	StfFirstName	nvarchar	25			
+	StfLastname	nvarchar	25			
+	StfStreetAddress	nvarchar	50			
+	StfCity	nvarchar	30			
+	StfState	nvarchar	2			
+	StfZipCode	nvarchar	5			
+	StfAreaCode	nvarchar	5			
+	StfPhoneNumber	nvarchar	8			
+	Salary	money	8			
+	DateHired	date	8			
+	Position	nvarchar	50			
+ 
+Indexes for Staff
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	StaffID
+ 
+StaffZipCode	
+	StfZipCode
+ 
+StudAreaCode	
+	StfAreaCode
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Student_Class_Status
+	ClassStatus	int	4	Yes	0	Yes
+	ClassStatusDescription	nvarchar	50			
+ 
+Indexes for Student_Class_Status
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	ClassStatus
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Student_Schedules
+	StudentID	int	4	Yes		Yes	Students.StudentID
+	ClassID	int	4	Yes		Yes	Classes.ClassID
+	ClassStatus	int	4		0		Student_Class_Status.ClassStatus
+	Grade	float(24)	4		0	
+ 
+Indexes for Student_Schedules
+Index Name	Attributes / Field Names
+ClassesStudent_Schedules	
+	ClassID
+ 
+PrimaryKey	Primary
+	StudentID
+	ClassID
+ 
+Student_Class_StatusStudent_Schedules	
+	ClassStatus
+ 
+StudentsStudent_Schedules	
+	StudentID
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Students
+	StudentID	int	4	Yes		Yes
+	StudFirstName	nvarchar	25			
+	StudLastName	nvarchar	25			
+	StudStreetAddress	nvarchar	50			
+	StudCity	nvarchar	30			
+	StudState	nvarchar	2			
+	StudZipCode	nvarchar	5			
+	StudAreaCode	nvarchar	5			
+	StudPhoneNumber	nvarchar	8			
+	StudBirthDate	date	8			
+	StudGender	nvarchar	1			
+	StudMaritalStatus	nvarchar	1			
+	StudMajor	int	4				Majors.MajorID
+ 
+Indexes for Students
+Index Name	Attributes / Field Names
+MajorsStudents	
+	StudMajor
+ 
+PrimaryKey	Primary
+	StudentID
+ 
+StudAreaCode	
+	StudAreaCode
+ 
+StudZipCode	
+	StudZipCode
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+Subjects
+	SubjectID	int	4	Yes	0	Yes
+	CategoryID	nvarchar	10				Categories.CategoryID
+	SubjectCode	nvarchar	8			
+	SubjectName	nvarchar	50			
+	SubjectPreReq	nvarchar	8		Null		Subjects.SubjectCode
+	SubjectDescription	nvarchar(max)	0			
+	SubjectEstClassSize	smallint	2			
+ 
+Indexes for Subjects
+Index Name	Attributes / Field Names
+CategoriesSubjects	
+	CategoryID
+ 
+PrimaryKey	Primary
+	SubjectID
+ 
+SubjectCode	Unique
+	SubjectCode
+ 
+SubjectsSubjects	
+	SubjectPreReq
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+ztblGenderMatrix
+	Gender	nvarchar	1	Yes		Yes
+	Male	smallint	2			
+	Female	smallint	2			
+ 
+Indexes for ztblGenderMatrix
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	Gender
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+ztblLetterGrades
+	LetterGrade	nvarchar	3	Yes		Yes
+	LowGradePoint	float(24)	4			
+	HighGradePoint	float(24)	4			
+ 
+Indexes for ztblLetterGrades
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	LetterGrade
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+ztblMaritalStatusMatrix
+	MaritalStatus	nvarchar	1	Yes		Yes
+	Married	smallint	2			
+	Single	smallint	2			
+	Widowed	smallint	2			
+	Divorced	smallint	2			
+ 
+Indexes for ztblMaritalStatusMatrix
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	MaritalStatus
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+ztblProfRatings
+	ProfRatingDesc	nvarchar	12			
+	ProfRatingLow	float(53)	8	Yes		Yes
+	ProfRatingHigh	float(53)	8			
+ 
+Indexes for ztblProfRatings
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	ProfRatingLow
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+ztblSemesterDays
+	SemesterNo	smallint	2	Yes		Yes
+	SemDate	date	8	Yes		Yes
+	SemDayName	nvarchar	10			
+ 
+Indexes for ztblSemesterDays
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	SemesterNo
+	SemDate
+ 
+ 
+Table Name	Fields	Data Type	Size	Required	Default	Primary Key	Foreign Key
+ztblSeqNumbers
+	Sequence	int	4	Yes	0	Yes
+ 
+Indexes for ztblSeqNumbers
+Index Name	Attributes / Field Names
+PrimaryKey	Primary
+	Sequence
+ 
+ 
+Relationship Constraints:
+Name	Parent	Parent Fields	Child	Child Fields
+BuildingsClass_Rooms	Buildings	BuildingCode 	Class_Rooms	BuildingCode 
+ 
+CategoriesFaculty_Categories	Categories	CategoryID 	Faculty_Categories	CategoryID 
+ 
+CategoriesSubjects	Categories	CategoryID 	Subjects	CategoryID 
+ 
+Class_RoomsClasses	Class_Rooms	ClassRoomID 	Classes	ClassRoomID 
+ 
+ClassesFaculty_Classes	Classes	ClassID 	Faculty_Classes	ClassID 
+ 
+ClassesStudent_Schedules	Classes	ClassID 	Student_Schedules	ClassID 
+ 
+DepartmentsCategories	Departments	DepartmentID 	Categories	DepartmentID 
+ 
+FacultyFaculty_Categories	Faculty	StaffID 	Faculty_Categories	StaffID 
+ 
+FacultyFaculty_Classes	Faculty	StaffID 	Faculty_Classes	StaffID 
+ 
+FacultyFaculty_Subjects	Faculty	StaffID 	Faculty_Subjects	StaffID 
+ 
+MajorsStudents	Majors	MajorID 	Students	StudMajor 
+ 
+StaffDepartments	Staff	StaffID 	Departments	DeptChair 
+ 
+StaffFaculty	Staff	StaffID 	Faculty	StaffID 
+ 
+StaffFaculty_Classes	Staff	StaffID 	Faculty_Classes	StaffID 
+ 
+Student_Class_StatusStudent_Schedules	Student_Class_Status	ClassStatus 	Student_Schedules	ClassStatus 
+ 
+StudentsStudent_Schedules	Students	StudentID 	Student_Schedules	StudentID 
+ 
+SubjectsClasses	Subjects	SubjectID 	Classes	SubjectID 
+ 
+SubjectsFaculty_Subjects	Subjects	SubjectID 	Faculty_Subjects	SubjectID 
+ 
+SubjectsSubjects	Subjects	SubjectCode 	Subjects	SubjectPreReq 
+ 
