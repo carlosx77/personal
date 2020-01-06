@@ -40,7 +40,7 @@
 				"handlers": {}
 			},
 			"custom-properties": {
-				"resultset.maxrows": "1500"
+				"resultset.maxrows": "15"
 			}
 		}
 	},
