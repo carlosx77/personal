@@ -101,7 +101,7 @@ from customers c inner join employees e on ( c.CustCity = e.EmpCity);
 ------------- CHAP 9
 -- “What products have never been ordered?”
 select products.productname
-from products left join order_details using (productnumber) where order_details.ordernumber is null
+from products left join order_details using (productnumber) where order_details.ordernumber is null;
 
 -- “Display all customers and any orders for bicycles.”
 select customers.customerid, customers.custfirstname, customers.custlastname, B.productname
@@ -113,7 +113,234 @@ from orders inner join order_details using (ordernumber)
 	inner join categories 
 	using (categoryid)
 	where categories.categorydescription like '%Bikes%'  ) as B
- using (customerid)  
+ using (customerid);
+
+-- 1. “Show me customers who have never ordered a helmet.”
+select customers.customerid, customers.custlastname, customers.custlastname
+from customers left join (
+	select od.ordernumber, od.productnumber, p.productname, o.customerid
+	from order_details od inner join products p using (productnumber) 
+						  inner join orders o using (ordernumber)
+	where p.productname like '%Helmet%') as A on (customers.customerid=A.customerid)
+	where A.customerid is null;
+
+-- 2. “Display customers who have no sales rep (employees) in the same ZIP Code.”
+select c.customerid, c.custlastname, c.custlastname
+from customers c left join employees e on ( c.custzipcode = e.empzipcode )
+where e.employeeid is null
+order by c.customerid;
+-- limit 1 offset 1;
+
+-- 3. “List all products and the dates for any orders.”
+-- The following answer is wrong, its asking for any order, that means: dont care about the order number
+select distinct p.productname, ord.orderdate, ord.ordernumber
+from products p left join ( SELECT DISTINCT od.ProductNumber, o.OrderDate, o.ordernumber
+              FROM orders o inner join order_details od using (ordernumber) ) as ord using (productnumber)
+-- if we drop the order id, as is "any order id"
+-- we use distinct because for sure for more than one order id we have the same product
+select p.productname, ord.orderdate
+from products p left join ( SELECT DISTINCT od.ProductNumber, o.OrderDate
+              FROM orders o inner join order_details od using (ordernumber) ) as ord using (productnumber);
+
+SELECT SKUClass, SKUNumber, ProductName
+FROM Products
+where (SKUClass, SKUNumber) >= ('DSK', 9775)
+              
+------------- CHAP 11
+-- “Show me all the orders shipped on October 3, 2017, and each order’s related customer last name.”
+select orders.ordernumber, orders.orderdate, orders.shipdate, 
+		(select customers.custlastname from customers where customers.customerid = orders.customerid)
+from orders
+where orders.shipdate = '2017-10-03'
+-- aqui podemos ver que el join con la tabla customers sucede en el select de la columna, y tienen que relacionarse
+-- customers y orders
+
+select orders.ordernumber, orders.orderdate, orders.shipdate, customers.custlastname
+from orders inner join customers using (customerid)
+where orders.shipdate = '2017-10-03'
+
+-- “List all the customer names and a count of the orders they placed.”
+select customers.custlastname, customers.custfirstname, 
+		(select count(*) from orders where orders.customerid = customers.customerid )
+from customers
+
+SELECT Customers.CustFirstName, Customers.CustLastName,
+        (SELECT COUNT(*) FROM orders WHERE Orders.CustomerID = Customers.CustomerID) AS CountOfOrders
+FROM Customers
+
+-- “Show me a list of customers and the date on which they placed an order.”
+select customers.custlastname, customers.custfirstname, orders.ordernumber, orders.orderdate
+from customers inner join orders using (customerid)
+order by customers.custlastname, customers.custfirstname, orders.orderdate desc
+
+
+-- “Show me a list of customers and the last date on which they placed an order.”
+select customers.custlastname, customers.custfirstname,
+		(select max(orders.orderdate) 
+			from orders 
+			where customers.customerid = orders.customerid 
+			group by customerid 
+)
+from customers
+order by customers.custlastname
+
+
+-- “Show me a list of customers and the last date on which they placed an order.”
+select customers.custlastname, customers.custfirstname,
+		(select max(orders.orderdate) from orders where customers.customerid = orders.customerid group by customerid)
+from customers
+order by customers.custlastname
+
+-- “List customers and all the details from their last order.
+select customers.custlastname, customers.custfirstname, orders.orderdate
+from customers inner join orders using (customerid)
+				inner join order_details using (ordernumber)
+				inner join products using (productnumber)
+where orders.orderdate = (select max(o2.orderdate) from orders as o2 where o2.customerid = orders.customerid )
+
+-- “List customers and all the details from their second last order (the previous one after the last date order).
+select distinct customers.custlastname, customers.custfirstname, orders.orderdate
+from customers inner join orders using (customerid)
+				inner join order_details using (ordernumber)
+				inner join products using (productnumber)
+where orders.orderdate = (select max(o2.orderdate) from orders as o2 where o2.customerid = orders.customerid 
+							and o2.orderdate not in 
+							(select max(o3.orderdate) from orders as o3 where o3.customerid = orders.customerid));
+-- the solution using distinct is ok but can cause some trouble if another information is requiered
+-- like “List recipes and all ingredients for each recipe for recipes that have a seafood ingredient.” (see solution
+-- ahead)
+
+-- “List all my recipes that have a seafood ingredient.”
+select distinct recipes.recipetitle
+from recipes inner join recipe_ingredients using (recipeid)
+			 inner join ingredients using (ingredientid)
+			 inner join ingredient_classes using (ingredientclassid)
+where ingredient_classes.ingredientclassdescription like 'Seafood';
+
+SELECT RecipeTitle
+FROM Recipes
+WHERE Recipes.RecipeID in (SELECT RecipeID 
+							FROM Recipe_Ingredients
+							WHERE Recipe_Ingredients.IngredientID IN
+								(SELECT IngredientID
+								FROM Ingredients
+								INNER JOIN Ingredient_Classes
+								ON Ingredients.IngredientClassID = Ingredient_Classes.IngredientClassID
+								where Ingredient_Classes.IngredientClassDescription = 'Seafood'));
+								
+-- The previous code shows how can you change inner joins for selects if having a where condition
+-- Other way to write the provious query
+SELECT RecipeTitle
+FROM Recipes
+WHERE Recipes.RecipeID in (SELECT RecipeID
+							FROM (Recipe_Ingredients
+							INNER JOIN Ingredients
+							ON Recipe_Ingredients.IngredientID = Ingredients.IngredientID)
+							INNER JOIN Ingredient_Classes
+							ON Ingredients.IngredientClassID = Ingredient_Classes.IngredientClassID
+							where Ingredient_Classes.IngredientClassDescription = 'Seafood');
+
+-- “List recipes and all ingredients for each recipe for recipes that have a seafood ingredient.” 
+select recipes.recipetitle, recipe_ingredients.recipeseqno, ingredients.ingredientname
+from recipes inner join recipe_ingredients using (recipeid)
+			 inner join ingredients using (ingredientid)
+where recipes.recipeid IN (SELECT RecipeID
+							FROM (Recipe_Ingredients
+							INNER JOIN Ingredients
+							ON Recipe_Ingredients.IngredientID = Ingredients.IngredientID)
+							INNER JOIN Ingredient_Classes
+							ON Ingredients.IngredientClassID = Ingredient_Classes.IngredientClassID
+							where Ingredient_Classes.IngredientClassDescription = 'Seafood');
+
+SELECT Recipes.RecipeTitle,
+Ingredients.IngredientName
+FROM (Recipes INNER JOIN Recipe_Ingredients ON Recipes.RecipeID = Recipe_Ingredients.RecipeID)
+		      INNER JOIN Ingredients ON Ingredients.IngredientID = Recipe_Ingredients.IngredientID
+		      WHERE Recipes.RecipeID in 
+		      		(SELECT RecipeID 
+		      		 FROM (Recipe_Ingredients INNER JOIN Ingredients ON Recipe_Ingredients.IngredientID = Ingredients.IngredientID)
+											  INNER JOIN Ingredient_Classes ON Ingredients.IngredientClassID = Ingredient_Classes.IngredientClassID
+												where Ingredient_Classes.IngredientClassDescription = 'Seafood');
+
+
+
+-- ALL, SOME, ANY. SOME and ANY are the same, =ALL will always be false unless the expresion returns only 1 value
+-- The same for <> ANY and <>SOME will be true if the value on left does not equal at least one value in list 
+
+-- “Show me the recipes that have beef or garlic.”
+select recipetitle
+from recipes 
+where recipes.recipeid =any (select recipe_ingredients.recipeid
+							from recipe_ingredients inner join ingredients using (ingredientid)
+							where ingredients.ingredientname like 'Beef' 
+								or ingredients.ingredientname like 'Garlic');
+
+-- “Find all accessories that are priced greater than any clothing item.”
+select products.productname, products.retailprice
+from products inner join categories using (categoryid)
+where categories.categorydescription like 'Accessories'
+and products.retailprice >ALL ( select products.retailprice
+								from products inner join categories using (categoryid)
+								where categories.categorydescription like 'Clothing');
+
+-- “Find all the customers who ordered a bicycle.”
+select customers.customerid, customers.custfirstname, customers.custlastname
+from customers
+where exists (select * from orders inner join order_details using (ordernumber)
+									 inner join products using (productnumber)
+			  where products.categoryid =2 and orders.customerid = customers.customerid)
+
+-- “List vendors and a count of the products they sell to us.”
+select vendors.vendname, (select count(*) as countproducts from product_vendors pv
+where pv.vendorid = vendors.vendorid
+group by vendorid)
+from vendors
+
+
+-- “Display customers who ordered clothing or accessories.”
+select customers.custlastname, customers.custfirstname
+from customers
+where customers.customerid in 
+	(select customerid from orders inner join order_details using (ordernumber)
+									inner join products using (productnumber)
+									inner join categories using (categoryid)
+	 where categories.categorydescription like 'Clothing'
+	 	or categories.categorydescription like 'Accessories'
+	 	and orders.customerid = customers.customerid 
+	)
+
+
+-- 1. “Display products and the latest date each product was ordered.”
+select products.productname, (select max(orders.orderdate) as maxorder
+								from orders inner join order_details using (ordernumber) 
+								where products.productnumber = order_details.productnumber ) 
+from products
+-- if you want to eliminate the products that have not been ordered
+select ord.productname, ord.maxorder from (
+(select products.productname, (select max(orders.orderdate) as maxorder
+								from orders inner join order_details using (ordernumber) 
+								where products.productnumber = order_details.productnumber ) 
+ from products ) ) as ord
+ where ord.maxorder is not null
+
+-- 2. “List customers who ordered bikes.”
+select customers.custfirstname, customers.custlastname
+from customers 
+where customers.customerid in (
+	select orders.customerid
+	from orders inner join order_details using (ordernumber) 
+ 				inner join products using (productnumber)
+ 				inner join categories using (categoryid)
+ 	where customers.customerid = orders.customerid
+ 	and categories.categorydescription like 'Bikes'
+)
+
+-- 3. “What products have never been ordered?”
+select products.productname
+from products
+where products.productnumber not in (
+	select order_details.productnumber
+	from order_details inner join products using (productnumber) )
 
 
 
@@ -176,7 +403,7 @@ from agents a inner join entertainers e on (a.AgtZipCode = e.EntZipCode);
 ------------- CHAP 9
 --  “List entertainers who have never been booked.”
 select entertainers.entertainerid, entertainers.entstagename
-from entertainers left join engagements using (entertainerid) where engagements.engagementnumber is null
+from entertainers left join engagements using (entertainerid) where engagements.engagementnumber is null;
 
 -- “Show me all musical styles and the customers who prefer those styles.”
 select ms.stylename, a.customerid, a.custfirstname, a.custlastname
@@ -185,7 +412,80 @@ from musical_styles ms left join (
 		from customers 
 			inner join musical_preferences 
 			using (customerid) ) 
-		as a using (styleid)
+		as a using (styleid);
+
+-- 1. “Display agents who haven’t booked an entertainer.”
+select agents.agentid, agents.agtfirstname
+from agents left join (
+	engagements inner join entertainers using (entertainerid)) as entern using (agentid)
+	where entern.entertainerid is null;
+
+-- 2. “List customers with no bookings.”
+select customers.customerid, customers.custfirstname
+from customers left join engagements using (customerid) where engagements.customerid is null;
+
+-- 3. “List all entertainers and any engagements they have booked.”
+select entertainers.entertainerid, entertainers.entstagename, engagements.engagementnumber
+from entertainers left join engagements using (entertainerid);
+
+------------- CHAP 11
+
+-- “Display all customers and the date of the last booking each made.”
+select customers.customerid, customers.custfirstname, 
+		customers.custlastname, 
+		(select MAX(engagements.startdate)
+		from engagements
+		where customers.customerid = engagements.customerid) as lastDate
+from customers
+
+-- “List the entertainers who played engagements for customer Berg.”
+select entertainers.entstagename
+from entertainers
+where entertainers.entertainerid in (
+	select entertainerid
+	from engagements inner join customers using (customerid)
+	where entertainers.entertainerid = engagements.entertainerid
+	and customers.custlastname like 'Berg')
+
+-- 1. “Show me all entertainers and the count of each entertainer’s engagements.”
+select entertainers.entstagename, (select count(*) from engagements 
+									where engagements.entertainerid = entertainers.entertainerid)
+from entertainers
+
+-- 2. “List customers who have booked entertainers who play country or country rock.”
+select customers.custfirstname, customers.custlastname
+from customers
+where customers.customerid in (
+	select cust2.customerid
+	from customers cust2 inner join engagements using (customerid)
+	where engagements.entertainerid in (
+		select entertainers.entertainerid
+		from entertainers inner join entertainer_styles using (entertainerid)
+						  inner join musical_styles using (styleid)
+		where musical_styles.stylename like 'Country'
+			or musical_styles.stylename like 'Country Rock'
+	)
+) 
+
+-- 3. “Find the entertainers who played engagements for customers Berg or Hallmark.”
+select entertainers.entstagename
+from entertainers
+where entertainers.entertainerid =some (
+	select entertainerid
+	from engagements inner join customers using (customerid)
+	where entertainers.entertainerid = engagements.entertainerid
+	and customers.custlastname like 'Berg'
+	or customers.custlastname like 'Hallmark'
+	)
+
+-- 4. “Display agents who haven’t booked an entertainer.”
+select agents.agtfirstname, agents.agtlastname
+from agents
+where agents.agentid not in (
+	select agentid
+	from engagements where agents.agentid=engagements.agentid
+)
+	
 
 
 
@@ -283,7 +583,90 @@ from students left join (
 select c.categoryid, c.categorydescription, subjects.subjectname, classes.startdate, classes.starttime, classes.duration
 from categories c left join subjects using (categoryid)
 				  left join classes using (subjectid) 
+
 				  
+-- 1. “Show me classes that have no students enrolled.”
+select classes.classid
+from classes left join (
+		select ss.classid, ss.studentid
+		from student_schedules ss
+		inner join student_class_status scs using (classstatus) 
+		where scs.classstatusdescription like 'Enrolled' ) as a using (classid)  where a.studentid is null;
+-- select * from student_class_status scs
+
+-- 2. “Display subjects with no faculty assigned.”
+select distinct subjects.subjectname
+from subjects left join faculty_subjects using (subjectid) where faculty_subjects.staffid is null;
+
+-- 3. “List students not currently enrolled in any classes.”
+select students.studentid
+from students left join (
+					select ss.studentid, ss.classid
+					from student_schedules ss inner join student_class_status scs 
+				   using (classstatus) 
+				   where scs.classstatusdescription like 'Enrolled' ) as a using (studentid)
+				   where a.classid is null;
+				   
+-- 4. “Display all faculty and the classes they are scheduled to teach.”
+select s.staffid, s.stflastname, s.stffirstname
+from staff s left outer join (
+		faculty inner join faculty_classes using (staffid)
+				inner join classes using (classid)) as a using (staffid);
+				   
+select f.staffid, sched.classid
+from faculty f left join (
+	faculty_classes inner join classes using (classid) ) as sched using (staffid);
+
+	
+------------- CHAP 11
+-- “Display all subjects and the count of classes for each subject on Monday.”
+select subjects.subjectname, (select count(*) from classes 
+								where classes.subjectid = subjects.subjectid
+								and classes.mondayschedule = 1) as mondaycount
+from subjects;
+
+-- “Display students who have never withdrawn from a class.”
+select students.studfirstname, students.studlastname
+from students
+where studentid not in (
+	select ss.studentid
+	from student_schedules ss inner join student_class_status using (classstatus)
+	where ss.studentid = students.studentid
+	and student_class_status.classstatusdescription like 'Withdrew')
+
+-- 1. “List all staff members and the count of classes each teaches.”
+select staff.stffirstname, staff.stflastname, 
+		(select count(*) from faculty_classes  
+		 where faculty_classes.staffid = staff.staffid
+		)
+from staff
+
+-- 2. “Display students enrolled in a class on Tuesday.”
+select students.studfirstname
+from students
+where students.studentid in (
+	select student_schedules.studentid
+	from student_schedules inner join classes using (classid)
+	where classes.tuesdayschedule = 1
+)
+
+-- 3. “List the subjects taught on Wednesday.”
+select subjects.subjectname
+from subjects
+where subjects.subjectid in (
+	select classes.subjectid 
+	from classes where classes.wednesdayschedule = 1
+	)
+-- previous query is equivalent to
+select distinct subjects.subjectname
+from subjects inner join classes using (subjectid)
+where classes.wednesdayschedule = 1
+
+
+
+
+
+
 
 
 
@@ -405,8 +788,67 @@ LEFT OUTER JOIN
 ON Bowlers.BowlerID = TI.BowlerID
 
 
+------------- CHAP 11
+-- “Display the bowlers and the highest game each bowled.”
+select bowlers.bowlerid, bowlers.bowlerfirstname, 
+		bowlers.bowlerlastname, 
+		(select max(bowler_scores.rawscore)
+		 from bowler_scores 
+		 where bowler_scores.bowlerid = bowlers.bowlerid)
+from bowlers
+
+-- “Display team captains with a handicap score higher than all other members on their teams.”
+select distinct teams.captainid, teamname
+from teams inner join bowler_scores on (teams.captainid=bowler_scores.bowlerid)
+where bowler_scores.handicapscore > all (
+	select MAX(bowler_scores.rawscore) from bowler_scores inner join bowlers using (bowlerid)
+															inner join teams using (teamid) 
+	where bowler_scores.bowlerid = teams.captainid
+	and teams.captainid <> bowlers.bowlerid
+	) 
+
+	
+SELECT Teams.TeamName, Bowlers.BowlerID,
+Bowlers.BowlerFirstName,
+Bowlers.BowlerLastName,
+Bowler_Scores.HandiCapScore
+FROM (Bowlers
+	INNER JOIN Teams
+	  ON Bowlers.BowlerID = Teams.CaptainID)
+	INNER JOIN Bowler_Scores
+	  ON Bowlers.BowlerID = Bowler_Scores.BowlerID
+	WHERE Bowler_Scores.HandiCapScore > All
+	(SELECT BS2.HandiCapScore
+	FROM Bowlers AS B2
+	INNER JOIN Bowler_Scores AS BS2
+	 ON B2.BowlerID = BS2.BowlerID
+	WHERE B2.BowlerID <> Bowlers.BowlerID
+	 AND B2.TeamID = Bowlers.TeamID)
+
+-- ******* Revisar este caso
+
+--1. “Show me all the bowlers and a count of games each bowled.”
+select bowlers.bowlerfirstname, bowlers.bowlerlastname, 
+		(select count(*) 
+		 from bowler_scores
+		 where bowler_scores.bowlerid = bowlers.bowlerid
+		)
+from bowlers
+
+-- 2. “List all the bowlers who have a raw score that’s less than all of the other bowlers on the same team.”
+SELECT DISTINCT Bowlers.BowlerID, Bowlers.BowlerFirstName, Bowlers.BowlerLastName, Bowler_Scores.RawScore
+FROM          Bowlers INNER JOIN
+                         Bowler_Scores ON Bowlers.BowlerID = Bowler_Scores.BowlerID
+WHERE     (Bowler_Scores.RawScore < ALL
+                              (SELECT     BS2.RawScore
+ 
+                               FROM           Bowlers AS B2 INNER JOIN
+                                                           Bowler_Scores AS BS2 ON B2.BowlerID = BS2.BowlerID
+                                WHERE       B2.BowlerID <> Bowlers.BowlerID AND B2.TeamID = Bowlers.TeamID));
 
 
+                               
+                               
 
 -------------------------------------------------- RECIPES EXAMPLE ------------------------------------------------
 
@@ -707,7 +1149,92 @@ ORDER BY RecipeTitle, RecipeSeqNo
 select *
 from ingredients left join recipe_ingredients using (ingredientid) where recipe_ingredients.recipeid is null
 			
+-- 1. “Display missing types of recipes.”
+select recipe_classes.recipeclassdescription
+from recipe_classes left join recipes using (recipeclassid) where recipes.recipeid is null
 
+-- 2. “Show me all ingredients and any recipes they’re used in.”
+select i.ingredientid, i.ingredientname, rec.recipeid, rec.recipetitle
+from ingredients i left join (
+	recipes inner join recipe_ingredients using (recipeid)
+	) as rec using (ingredientid)
+	
+--3. “List the salad, soup, and main course categories and any recipes.”
+select recipes.recipetitle, cl.recipeclassdescription
+from recipes right join (
+	select rc.recipeclassid, rc.recipeclassdescription, recipes.recipetitle
+	from recipe_classes rc right join recipes using (recipeclassid)
+	where (rc.recipeclassdescription like 'Salad' 
+			or rc.recipeclassdescription like 'Soup' 
+			or rc.recipeclassdescription like 'Main Course')
+) as cl using (recipeclassid) --WRONG!!!!!!
+
+
+SELECT     RCFiltered.ClassName, R.RecipeTitle
+FROM         (SELECT     RC.RecipeClassID, RC.RecipeClassDescription AS ClassName
+                       FROM          Recipe_Classes AS RC
+                       WHERE      RC.RecipeClassDescription = 'Salad' OR
+                                              RC.RecipeClassDescription = 'Soup' OR
+                                              RC.RecipeClassDescription = 'Main course') RCFiltered LEFT OUTER JOIN
+                      Recipes R ON RCFiltered.RecipeClassID = R.RecipeClassID;
+
+-- 4. “Display all recipe classes and any recipes.”
+select rc.recipeclassdescription, recipes.recipetitle
+from recipe_classes rc left outer join recipes using (recipeclassid);
+
+------------- CHAP 11
+
+-- “List all the meats and the count of recipes each appears in.”
+select ingredient_classes.ingredientclassdescription,  ingredients.ingredientname, 
+		(select count(*) from recipe_ingredients 
+			where recipe_ingredients.ingredientid=ingredients.ingredientid) as countrecipes
+from ingredients inner join ingredient_classes using (ingredientclassid)
+where ingredient_classes.ingredientclassdescription like 'Meat';
+
+
+-- -- “Display all the ingredients for recipes that contain carrots.”
+select recipes.recipetitle, i.ingredientname
+from ingredients i inner join recipe_ingredients using (ingredientid)
+				 inner join recipes using (recipeid)
+where recipes.recipeid in (
+	select recipe_ingredients.recipeid
+	from recipe_ingredients inner join ingredients i2 using (ingredientid)
+	where i2.ingredientname like 'Carrot'
+	);
+	
+-- 1. “Show me the types of recipes and the count of recipes in each type.”
+select recipe_classes.recipeclassdescription, 
+	(select count(*) 
+	from recipes 
+	where recipe_classes.recipeclassid = recipes.recipeclassid
+	)
+from recipe_classes;
+
+-- 2. “List the ingredients that are used in some recipe where the measurement amount in the recipe is not the default measurement amount.”
+SELECT     IngredientID, IngredientName, MeasureAmountID
+FROM         Ingredients
+WHERE     (MeasureAmountID <> ANY
+                          (SELECT     Recipe_Ingredients.MeasureAmountID
+                            FROM          Recipe_Ingredients
+                            WHERE      Recipe_Ingredients.IngredientID = Ingredients.IngredientID));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                     
+                     
+                     
 					
 ----- EXPRESSIONS
 --- working with TIME, DATE AND TIMESTAMP
