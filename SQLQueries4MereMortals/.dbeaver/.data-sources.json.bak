@@ -36,11 +36,10 @@
 				"provider-properties": {
 					"@dbeaver-show-non-default-db@": "false",
 					"@dbeaver-show-template-db@": "false"
-				},
-				"handlers": {}
+				}
 			},
 			"custom-properties": {
-				"resultset.maxrows": "15"
+				"resultset.maxrows": "300"
 			}
 		}
 	},

@@ -294,7 +294,7 @@ where exists (select * from orders inner join order_details using (ordernumber)
 select vendors.vendname, (select count(*) as countproducts from product_vendors pv
 where pv.vendorid = vendors.vendorid
 group by vendorid)
-from vendors
+from vendors;
 
 
 -- “Display customers who ordered clothing or accessories.”
@@ -307,7 +307,7 @@ where customers.customerid in
 	 where categories.categorydescription like 'Clothing'
 	 	or categories.categorydescription like 'Accessories'
 	 	and orders.customerid = customers.customerid 
-	)
+	);
 
 
 -- 1. “Display products and the latest date each product was ordered.”
@@ -321,7 +321,7 @@ select ord.productname, ord.maxorder from (
 								from orders inner join order_details using (ordernumber) 
 								where products.productnumber = order_details.productnumber ) 
  from products ) ) as ord
- where ord.maxorder is not null
+ where ord.maxorder is not null;
 
 -- 2. “List customers who ordered bikes.”
 select customers.custfirstname, customers.custlastname
@@ -333,14 +333,186 @@ where customers.customerid in (
  				inner join categories using (categoryid)
  	where customers.customerid = orders.customerid
  	and categories.categorydescription like 'Bikes'
-)
+);
 
 -- 3. “What products have never been ordered?”
 select products.productname
 from products
 where products.productnumber not in (
 	select order_details.productnumber
-	from order_details inner join products using (productnumber) )
+	from order_details inner join products using (productnumber) );
+
+------------- CHAP 13
+
+--“Show me for each entertainment group the group name, the count of contracts for the group, 
+-- the total price of all the contracts, the lowest contract price, the highest contract price, 
+-- and the average price of all the contracts.”
+select entertainers.entstagename, count(engagements.engagementnumber) as ContractNumber,
+		sum (engagements.contractprice) as TotalContractPrice, 
+		max (engagements.contractprice) as HighestContract,
+		min (engagements.contractprice) as LowestContract,
+		avg (engagements.contractprice) as AvgContractPrice
+from entertainers inner join engagements using (entertainerid)
+group by entertainerid; --or entstagename
+
+--****** AGGREGATE FUNCTIONS IGNORE NULL VALUES!!!!!!!!
+-- proof:
+select entertainers.entstagename, count(engagements.engagementnumber) as ContractNumber,
+		sum (engagements.contractprice) as TotalContractPrice, 
+		max (engagements.contractprice) as HighestContract,
+		min (engagements.contractprice) as LowestContract,
+		avg (engagements.contractprice) as AvgContractPrice
+from entertainers left join engagements using (entertainerid)
+group by entertainerid; --or entstagename
+
+-- “Show me for each customer the customer first and last names, the count of contracts for the customer, 
+-- the total price of all the contracts, the lowest contract price, the highest contract price, 
+-- and the average price of all the contracts.”
+
+select customers.custlastname, customers.custfirstname,
+		sum (engagements.contractprice) as TotalContractPrice, 
+		max (engagements.contractprice) as HighestContract,
+		min (engagements.contractprice) as LowestContract,
+		avg (engagements.contractprice) as AvgContractPrice
+from customers inner join engagements using (customerid)
+group by customers.custlastname, customers.custfirstname;
+
+-- If I want ALL the cuestomer
+select customers.custlastname, customers.custfirstname,
+		sum (engagements.contractprice) as TotalContractPrice, 
+		max (engagements.contractprice) as HighestContract,
+		min (engagements.contractprice) as LowestContract,
+		avg (engagements.contractprice) as AvgContractPrice
+from customers left join engagements using (customerid)
+group by customers.custlastname, customers.custfirstname;
+
+-- “Show me for each customer the customer full name, the customer full address,
+-- the latest contract date for the customer, and the total price of all the contracts.”
+SELECT Customers.CustLastName || ', ' ||
+Customers.CustFirstName AS CustomerFullName,
+Customers.CustStreetAddress || ', ' ||
+Customers.CustCity || ', ' ||
+Customers.CustState || ' ' ||
+Customers.CustZipCode AS CustomerFullAddress,
+MAX(Engagements.StartDate) AS LatestDate,
+SUM(Engagements.ContractPrice)
+AS TotalContractPrice
+FROM Customers
+INNER JOIN Engagements
+ON Customers.CustomerID =
+Engagements.CustomerID
+GROUP BY customer.customerid
+
+SELECT Customers.CustLastName || ', ' ||
+Customers.CustFirstName AS CustomerFullName,
+Customers.CustStreetAddress || ', ' ||
+Customers.CustCity || ', ' ||
+Customers.CustState || ' ' ||
+Customers.CustZipCode AS CustomerFullAddress,
+MAX(Engagements.StartDate) AS LatestDate,
+SUM(Engagements.ContractPrice)
+AS TotalContractPrice
+FROM Customers
+INNER JOIN Engagements
+ON Customers.CustomerID =
+Engagements.CustomerID
+GROUP BY Customers.CustLastName,
+Customers.CustFirstName,
+Customers.CustStreetAddress,
+Customers.CustCity, Customers.CustState,
+Customers.CustZipCode;
+
+-- “Display the engagement contract whose price is greater than the sum of all contracts for any other customer.”
+
+select customers.custfirstname, customers.custlastname, engagements.engagementnumber, engagements.contractprice
+from engagements inner join customers using (customerid) 
+where engagements.contractprice > all (select sum(contractprice)
+								   from engagements e2
+								   where Customers.customerid <> e2.customerid
+								   group by e2.customerid);
+
+-- SIMULATE DISTINCT WITH GROUP BY
+select distinct c.custcity
+from customers c;
+
+select c.custcity
+from customers c
+group by c.custcity
+
+
+-- “Display the customer ID, customer full name, and the total of all engagement contract prices.”
+
+SELECT Customers.CustomerID,
+Customers.CustFirstName || ' ' ||
+Customers.CustLastName AS CustFullName,
+SUM(Engagements.ContractPrice) AS TotalPrice
+FROM Customers
+INNER JOIN Engagements
+ON Customers.CustomerID = Engagements.CustomerID
+GROUP BY Customers.CustomerID  <---- THIS SHOULD NOT BE CORRECT!!! but works on MySql and PostgreSQL
+
+SELECT Customers.CustomerID,
+Customers.CustFirstName || ' ' ||
+Customers.CustLastName AS CustFullName,
+SUM(Engagements.ContractPrice) AS TotalPrice
+FROM Customers
+INNER JOIN Engagements
+ON Customers.CustomerID =
+Engagements.CustomerID
+GROUP BY Customers.CustomerID,
+Customers.CustFirstName,
+Customers.CustLastName
+
+
+------ ***** A COMMON ERROR IS TO group by EXPRESSIONS CREATED ON SELECT:
+SELECT Customers.CustLastName || ', ' ||
+Customers.CustFirstName AS CustomerFullName,
+Customers.CustStreetAddress || ', ' ||
+Customers.CustCity || ', ' ||
+Customers.CustState || ' ' ||
+Customers.CustZipCode AS CustomerFullAddress,
+MAX(Engagements.StartDate) AS LatestDate,
+SUM(Engagements.ContractPrice)
+AS TotalContractPrice
+FROM Customers
+INNER JOIN Engagements
+ON Customers.CustomerID =
+Engagements.CustomerID
+WHERE Customers.CustState = 'WA'
+GROUP BY CustomerFullName,
+CustomerFullAddress
+--- BUT POSTGRESS ALLOWS YOU TO DO IT, ITS NOT SQL STANDARD
+
+-- THE CORRECT WAY TO DO THIS IS>
+SELECT CE.CustomerFullName,
+CE.CustomerFullAddress,
+MAX(CE.StartDate) AS LatestDate,
+SUM(CE.ContractPrice) AS TotalContractPrice
+FROM
+(SELECT Customers.CustLastName || ', ' ||
+Customers.CustFirstName AS CustomerFullName,
+ Customers.CustStreetAddress || ', ' ||
+ Customers.CustCity || ', ' ||
+ Customers.CustState || ' ' ||
+ Customers.CustZipCode AS CustomerFullAddress,
+ Engagements.StartDate,
+ Engagements.ContractPrice
+FROM Customers
+INNER JOIN Engagements
+ON Customers.CustomerID =
+ Engagements.CustomerID
+WHERE Customers.CustState = 'WA')
+AS CE
+GROUP BY CE.CustomerFullName,
+CE.CustomerFullAddress
+
+
+
+
+
+
+
+
 
 
 
