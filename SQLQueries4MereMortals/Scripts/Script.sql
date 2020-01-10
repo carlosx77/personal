@@ -483,7 +483,7 @@ GROUP BY CustomerFullName,
 CustomerFullAddress
 --- BUT POSTGRESS ALLOWS YOU TO DO IT, ITS NOT SQL STANDARD
 
--- THE CORRECT WAY TO DO THIS IS>
+-- THE CORRECT WAY TO DO THIS IS:
 SELECT CE.CustomerFullName,
 CE.CustomerFullAddress,
 MAX(CE.StartDate) AS LatestDate,
@@ -506,6 +506,35 @@ AS CE
 GROUP BY CE.CustomerFullName,
 CE.CustomerFullAddress
 
+
+-- “List for each customer and order date the customer full name and the total cost of items ordered on each date.”
+select customers.custfirstname, customers.custlastname, orders.orderdate,
+	   SUM(order_details.quantityordered*order_details.quotedprice) as TotalCost
+from customers inner join orders using (customerid)
+			   inner join order_details using (ordernumber)
+group by customers.customerid, orders.orderdate
+order by customers.custfirstname, customers.custlastname
+
+------------- CHAP 14
+
+-- “Show me the states on the west coast of the United States where the total of the orders is greater than $1 million.”
+select customers.custstate, SUM(order_details.quantityordered*order_details.quotedprice) as total
+from customers inner join orders using (customerid)
+			   inner join order_details using (ordernumber)
+where customers.custstate in ('WA', 'OR', 'CA')
+group by customers.custstate
+having SUM(order_details.quantityordered*order_details.quotedprice) > 1000000;
+
+-- “List for each customer and order date the customer’s full name and the total cost of items ordered that is greater than $1,000.”
+select customers.custlastname, customers.custfirstname, orders.orderdate, SUM (order_details.quantityordered*order_details.quotedprice) as suma
+from  customers inner join orders using (customerid)
+				inner join order_details using (ordernumber)
+group by customers.custlastname, customers.custfirstname, orders.orderdate
+having SUM (order_details.quantityordered*order_details.quotedprice) > 1000
+order by customers.custlastname, customers.custfirstname, orders.orderdate
+
+
+ 
 
 
 
@@ -608,7 +637,7 @@ select customers.customerid, customers.custfirstname,
 		(select MAX(engagements.startdate)
 		from engagements
 		where customers.customerid = engagements.customerid) as lastDate
-from customers
+from customers;
 
 -- “List the entertainers who played engagements for customer Berg.”
 select entertainers.entstagename
@@ -617,7 +646,7 @@ where entertainers.entertainerid in (
 	select entertainerid
 	from engagements inner join customers using (customerid)
 	where entertainers.entertainerid = engagements.entertainerid
-	and customers.custlastname like 'Berg')
+	and customers.custlastname like 'Berg');
 
 -- 1. “Show me all entertainers and the count of each entertainer’s engagements.”
 select entertainers.entstagename, (select count(*) from engagements 
@@ -637,7 +666,7 @@ where customers.customerid in (
 		where musical_styles.stylename like 'Country'
 			or musical_styles.stylename like 'Country Rock'
 	)
-) 
+);
 
 -- 3. “Find the entertainers who played engagements for customers Berg or Hallmark.”
 select entertainers.entstagename
@@ -656,8 +685,51 @@ from agents
 where agents.agentid not in (
 	select agentid
 	from engagements where agents.agentid=engagements.agentid
-)
+);
 	
+
+------------- CHAP 14
+-- “Show me the entertainer groups that play in a jazz style and have more than three members.”
+select entertainers.entstagename, count(entertainerid) as NumMembers
+from entertainers inner join entertainer_members using (entertainerid)
+where entertainerid in (
+	select  entertainers.entertainerid
+	from entertainers inner join entertainer_styles using (entertainerid)
+					  inner join musical_styles using (styleid)
+	where musical_styles.stylename like 'Jazz'
+	)
+group by entstagename
+having count(entertainerid) > 3;
+
+SELECT Entertainers.EntertainerID, Entertainers.EntStageName, Count(Entertainer_Members.EntertainerID)
+AS CountOfMembers, Musical_Styles.stylename
+FROM Entertainers INNER JOIN Entertainer_Members ON Entertainers.EntertainerID = Entertainer_Members.EntertainerID
+					INNER JOIN Entertainer_Styles ON Entertainers.EntertainerID = Entertainer_Styles.EntertainerID
+					INNER JOIN Musical_Styles ON Musical_Styles.StyleID = Entertainer_Styles.StyleID
+WHERE Musical_Styles.StyleName = 'Jazz'
+GROUP BY Entertainers.EntertainerID, Entertainers.EntStageName, Musical_Styles.stylename
+having Count(Entertainer_Members.EntertainerID)>3;
+
+------------- CHAP 14
+-- “Which agents booked more than $3,000 worth of business in December 2017?”
+select agents.agtfirstname, agents.agtlastname, sum (engagements.contractprice)
+from agents inner join engagements using (agentid)
+where engagements.startdate between '2017-12-01' and '2017-12-31' 
+group by agents.agtfirstname, agents.agtlastname
+having sum (engagements.contractprice) > 3000
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -835,12 +907,70 @@ from subjects inner join classes using (subjectid)
 where classes.wednesdayschedule = 1
 
 
+------------- CHAP 14
+
+-- “Show me the subject categories that have fewer than three full professors teaching that subject.”
+select categories.categorydescription, count (staffid)
+from faculty right join faculty_categories using (staffid)
+			 inner join categories using (categoryid)
+where faculty.title like 'Professor'
+group by categories.categorydescription
+having count(staffid) < 3
+-------- THIS IS WWWWWWWRRRRRRRRRRRRROOOOOOOOOOOONGGGGG
+-- There are categoy subjects that doesnt have ANY professor assigned! in other words
+-- is not showing categories with 0 professors assigned!
+
+SELECT Categories.CategoryDescription, 
+	(SELECT COUNT(Faculty.StaffID)
+	FROM (Faculty INNER JOIN Faculty_Categories ON Faculty.StaffID = Faculty_Categories.StaffID)
+				  INNER JOIN Categories AS C2 ON C2.CategoryID = Faculty_Categories.CategoryID
+	WHERE C2.CategoryID = Categories.CategoryID AND Faculty.Title = 'Professor') AS ProfCount
+FROM Categories
+where (SELECT COUNT(Faculty.StaffID)
+		FROM (Faculty INNER JOIN Faculty_Categories ON Faculty.StaffID =Faculty_Categories.StaffID) 
+					  INNER JOIN Categories AS C3 ON C3.CategoryID = Faculty_Categories.CategoryID
+		WHERE C3.CategoryID = Categories.CategoryID
+		AND Faculty.Title = 'Professor'
+		) < 3		
+		
+-- IF IM BEEN ASKED FOR SOMETHING THAT RETURNS 0 or I'm interested on the ones that count 0 on a count, then better use this approach of not using HAVING!
+
+
+-- “For completed classes, list by category and student the category name, the student name, 
+-- and the student’s average grade of all classes taken in that category for those students 
+-- who have an average higher than 90.”
+select students.studlastname, students.studfirstname, categories.categorydescription, AVG(student_schedules.grade)
+from student_class_status inner join student_schedules using (classstatus)
+						  inner join students using (studentid)
+						  inner join classes using (classid)
+						  inner join subjects using (subjectid)
+						  inner join categories using (categoryid)
+where student_class_status.classstatusdescription like 'Completed'
+group by students.studlastname, students.studfirstname, categories.categorydescription
+having AVG(student_schedules.grade) > 90
+
+-- “List each staff member and the count of classes each is scheduled to teach for those staff
+-- members who teach at least one but fewer than three classes.”
+select staff.stffirstname, staff.stflastname, count (*)
+from staff inner join faculty_classes using (staffid)
+group by staff.stffirstname, staff.stflastname
+having count (*) >= 1 and count (*) <3
+
+
+-- 
 
 
 
 
 
 
+
+
+		
+		
+		
+		
+		
 
 -------------------------------------------------- BOWLING LEAGUE ------------------------------------------------
 
@@ -1017,6 +1147,29 @@ WHERE     (Bowler_Scores.RawScore < ALL
                                FROM           Bowlers AS B2 INNER JOIN
                                                            Bowler_Scores AS BS2 ON B2.BowlerID = BS2.BowlerID
                                 WHERE       B2.BowlerID <> Bowlers.BowlerID AND B2.TeamID = Bowlers.TeamID));
+
+------------- CHAP 14
+-- “List the bowlers whose highest raw scores are more than 20 pins higher than their 
+-- current averages.”
+select bowlers.bowlerfirstname, bowlers.bowlerlastname, 
+		MAX(bowler_scores.rawscore), AVG (bowler_scores.rawscore)
+from bowlers inner join bowler_scores using (bowlerid)
+group by bowlers.bowlerfirstname, bowlers.bowlerlastname
+having MAX(bowler_scores.rawscore) > AVG (bowler_scores.rawscore) + 20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                                
@@ -1391,9 +1544,16 @@ WHERE     (MeasureAmountID <> ANY
                             WHERE      Recipe_Ingredients.IngredientID = Ingredients.IngredientID));
 
 
-
-
-
+------------- CHAP 14
+---- “List the recipes that contain both beef and garlic.”
+select recipes.recipetitle
+from recipes
+where recipeid in (
+		select recipe_ingredients.recipeid 
+		from ingredients inner join recipe_ingredients using (ingredientid)
+		where ingredients.ingredientname in ('Beef', 'Garlic')
+		group by recipeid
+		having count (recipeid) = 2 )
 
 
 
@@ -1617,3 +1777,5 @@ order by r.RecipeTitle, ri.RecipeSeqNo;
 -- Puedo usar INNER JOINS para encontrar valores iguales en dos tablas (o en la misma pero con alias) sobre columnas
 --  que no necesariamente son ids
 
+-------------- HAVING!!!!!
+-- having acts on rows AFTER THEY HAVE BEEN GROUPED
