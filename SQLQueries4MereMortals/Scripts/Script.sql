@@ -531,12 +531,70 @@ from  customers inner join orders using (customerid)
 				inner join order_details using (ordernumber)
 group by customers.custlastname, customers.custfirstname, orders.orderdate
 having SUM (order_details.quantityordered*order_details.quotedprice) > 1000
-order by customers.custlastname, customers.custfirstname, orders.orderdate
+order by customers.custlastname, customers.custfirstname, orders.orderdate;
 
 
- 
+-- 1. “Show me each vendor and the average by vendor of the number of days to deliver products 
+-- that are greater than the average delivery days for all vendors.”
+
+-- average delivery days by vendor
+select AVG(daystodeliver), vendorid
+from product_vendors
+group by vendorid
+having AVG(daystodeliver) > (
+	select AVG(daystodeliver)
+	from product_vendors );
 
 
+-- 2. “Display for each product the product name and the total sales that is greater than the average
+-- of sales for all products in that category.”
+
+select products.productname, SUM(order_details.quantityordered*order_details.quotedprice)
+from order_details  inner join products using (productnumber)
+group by products.productname, products.categoryid
+having SUM(order_details.quantityordered*order_details.quotedprice) >
+	-- average sales for all products in a category
+				(select avgCat.res from 
+				(select AVG (quantityordered*quotedprice) as res, categoryid
+				from order_details od2  inner join products p2 using (productnumber)
+								    inner join categories c2 using (categoryid)
+				where p2.categoryid = products.categoryid 
+				group by categoryid ) as avgCat);
+
+SELECT     Products.ProductName, SUM(Order_Details.QuotedPrice * Order_Details.QuantityOrdered) AS TotalSales
+FROM         Products INNER JOIN   Order_Details ON Products.ProductNumber = Order_Details.ProductNumber
+GROUP BY Products.CategoryID, Products.ProductName
+HAVING      (SUM(Order_Details.QuotedPrice * Order_Details.QuantityOrdered) >
+                (SELECT     AVG(SumCategory)
+                 FROM       
+                    (SELECT     P2.CategoryID, SUM(OD2.QuotedPrice * OD2.QuantityOrdered) AS SumCategory
+                     FROM          Products AS P2 
+                     INNER JOIN    Order_Details AS OD2 
+                       ON P2.ProductNumber = OD2.ProductNumber
+                     GROUP BY P2.CategoryID, P2.ProductNumber) AS S
+                 WHERE      S.CategoryID = Products.CategoryID
+                 GROUP BY CategoryID));
+SELECT     AVG(SumCategory)
+                 FROM       
+                    (SELECT     P2.CategoryID, AVG(OD2.QuotedPrice * OD2.QuantityOrdered) AS SumCategory
+                     FROM          Products AS P2 
+                     INNER JOIN    Order_Details AS OD2 ON P2.ProductNumber = OD2.ProductNumber
+                     WHERE      P2.CategoryID = 1
+                     GROUP BY P2.CategoryID, P2.ProductNumber
+                 
+                 GROUP BY CategoryID
+                
+
+-- 3. “How many orders are for only one product?”
+select count (ordernumber)
+from orders
+where ordernumber in (
+	select order_details.ordernumber
+	from order_details
+	group by order_details.ordernumber
+	having count(order_details.productnumber) = 1
+	order by ordernumber
+	);
 
 
 
