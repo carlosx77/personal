@@ -1310,11 +1310,54 @@ group by bowlers.bowlerfirstname, bowlers.bowlerlastname
 having MAX(bowler_scores.rawscore) > AVG (bowler_scores.rawscore) + 20
 
 
+-- 1. “Do any team captains have a raw score that is higher than any other member of the team?”
+-- captains with raw score higher than any other member on team
+select 
+
+select cap.bowlerid, cap.bowlerfirstname, cap.bowlerlastname, t1.teamname, max (bowler_scores.rawscore)
+from bowlers cap inner join teams t1 on (cap.bowlerid = t1.captainid)
+				inner join bowler_scores using (bowlerid)
+group by cap.bowlerid, t1.teamid, cap.bowlerfirstname, cap.bowlerlastname
+having max (bowler_scores.rawscore) > 
+			(select max(bs.rawscore)
+			from bowlers team inner join teams t using (teamid)
+							  inner join bowler_scores bs using (bowlerid)
+			where cap.bowlerid <> bs.bowlerid
+			and t1.teamid = t.teamid
+			group by t.teamid
+			)
+			
+select Teams.TeamID, Bowlers.BowlerID, Bowlers.BowlerFirstName, Bowlers.BowlerLastName, MAX(Bowler_Scores.RawScore) 
+                         AS MaxOfRawScore
+from Bowlers INNER JOIN Bowler_Scores ON Bowlers.BowlerID = Bowler_Scores.BowlerID 
+			 INNER JOIN Teams ON Bowlers.BowlerID = Teams.CaptainID
+GROUP BY Teams.TeamID, Bowlers.BowlerID, Bowlers.BowlerFirstName, Bowlers.BowlerLastName
+HAVING       (MAX(Bowler_Scores.RawScore) >
+                              (SELECT     MAX(RawScore)
+                                FROM           (Teams AS T2 INNER JOIN
+                                                           Bowlers AS B2 ON T2.TeamID = B2.TeamID) INNER JOIN
+                                                           Bowler_Scores ON B2.BowlerID = Bowler_Scores.BowlerID
+                                WHERE       T2.TeamID = Teams.TeamID 
+                                AND B2.BowlerID <> Bowlers.BowlerID));
+
+-- 2. “Display for each bowler the bowler name and the average of the 
+-- bowler’s raw game scores for bowlers whose average is greater than 155.”
+
+select bowlers.bowlerfirstname, bowlers.bowlerlastname, AVG(bowler_scores.rawscore)
+from bowlers inner join bowler_scores using (bowlerid)
+group by bowlers.bowlerfirstname, bowlers.bowlerlastname
+having AVG(bowler_scores.rawscore) > 155
 
 
-
-
-
+-- 3. “List the last name and first name of every bowler whose average raw score is 
+-- greater than or equal to the overall average score.”
+select bowlers.bowlerfirstname, bowlers.bowlerlastname, AVG(bowler_scores.rawscore)
+from bowlers inner join bowler_scores using (bowlerid)
+group by bowlers.bowlerfirstname, bowlers.bowlerlastname
+having AVG(bowler_scores.rawscore) > (
+		select avg (bs.rawscore)
+		from bowler_scores bs
+		)
 
 
 
@@ -1705,9 +1748,23 @@ where recipeid in (
 		from ingredients inner join recipe_ingredients using (ingredientid)
 		where ingredients.ingredientname in ('Beef', 'Garlic')
 		group by recipeid
-		having count (recipeid) = 2 )
+		having count (recipeid) = 2 );
+
+-- 1. “Sum the amount of salt by recipe class, and display those recipe classes that require more than three teaspoons.”
+select recipe_classes.recipeclassdescription,  sum (recipe_ingredients.amount)
+from recipe_classes inner join recipes using (recipeclassid)
+					inner join recipe_ingredients using (recipeid)
+					inner join ingredients using (ingredientid)
+where ingredients.ingredientname like 'Salt'
+group by recipe_classes.recipeclassdescription
+having sum (recipe_ingredients.amount) > 3;
 
 
+-- 2. “For what class of recipe do I have two or more recipes?”
+select recipe_classes.recipeclassdescription, count(*)
+from recipe_classes inner join recipes using (recipeclassid)
+group by recipe_classes.recipeclassdescription
+having count(*) >=2
 
 
 
