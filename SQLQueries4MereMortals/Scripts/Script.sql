@@ -557,13 +557,13 @@ having SUM(order_details.quantityordered*order_details.quotedprice) >
 				(select avgCat.res from 
 				(select AVG (quantityordered*quotedprice) as res, categoryid
 				from order_details od2  inner join products p2 using (productnumber)
-								    inner join categories c2 using (categoryid)
+								    	inner join categories c2 using (categoryid)
 				where p2.categoryid = products.categoryid 
 				group by categoryid ) as avgCat);
-
-SELECT     Products.ProductName, SUM(Order_Details.QuotedPrice * Order_Details.QuantityOrdered) AS TotalSales
+-- Correct one
+SELECT  Products.CategoryID,   Products.ProductName, products.productnumber, SUM(Order_Details.QuotedPrice * Order_Details.QuantityOrdered) AS TotalSales--, AVG(SumCategory)
 FROM         Products INNER JOIN   Order_Details ON Products.ProductNumber = Order_Details.ProductNumber
-GROUP BY Products.CategoryID, Products.ProductName
+GROUP BY Products.CategoryID, Products.ProductName, products.productnumber
 HAVING      (SUM(Order_Details.QuotedPrice * Order_Details.QuantityOrdered) >
                 (SELECT     AVG(SumCategory)
                  FROM       
@@ -573,16 +573,10 @@ HAVING      (SUM(Order_Details.QuotedPrice * Order_Details.QuantityOrdered) >
                        ON P2.ProductNumber = OD2.ProductNumber
                      GROUP BY P2.CategoryID, P2.ProductNumber) AS S
                  WHERE      S.CategoryID = Products.CategoryID
-                 GROUP BY CategoryID));
-SELECT     AVG(SumCategory)
-                 FROM       
-                    (SELECT     P2.CategoryID, AVG(OD2.QuotedPrice * OD2.QuantityOrdered) AS SumCategory
-                     FROM          Products AS P2 
-                     INNER JOIN    Order_Details AS OD2 ON P2.ProductNumber = OD2.ProductNumber
-                     WHERE      P2.CategoryID = 1
-                     GROUP BY P2.CategoryID, P2.ProductNumber
-                 
-                 GROUP BY CategoryID
+                 GROUP BY CategoryID) )
+order by productnumber
+                
+
                 
 
 -- 3. “How many orders are for only one product?”
@@ -595,6 +589,11 @@ where ordernumber in (
 	having count(order_details.productnumber) = 1
 	order by ordernumber
 	);
+
+
+
+
+
 
 
 
@@ -776,8 +775,40 @@ where engagements.startdate between '2017-12-01' and '2017-12-31'
 group by agents.agtfirstname, agents.agtlastname
 having sum (engagements.contractprice) > 3000
 
+-- 1. “Show me the entertainers who have more than two overlapped bookings.”
+select entertainers.entertainerid , entertainers.entstagename
+from entertainers where entertainers.entertainerid in (
+	select e1.entertainerid
+	from engagements as e1 inner join engagements as e2 on E1.EntertainerID = E2.EntertainerID
+	where E1.EngagementNumber <> E2.EngagementNumber
+	and E1.StartDate <= E2.EndDate
+	and e1.enddate >= e2.startdate
+	group by e1.entertainerid
+	having count(*) > 2 );
 
+-- 2. “Show each agent’s name, the sum of the contract price for the engagements booked,
+-- and the agent’s total commission for agents whose total commission is more than $1,000.”
 
+-- agents with commission more than 1000
+select agents.agtfirstname, agents.agtlastname, SUM(engagements.contractprice) as SumContracts, 
+		sum(engagements.contractprice*agents.commissionrate) as SumTotalComm
+from agents inner join engagements using (agentid)
+where agents.agentid in (
+select agtMore.agentid from 
+(select agents.agentid, sum(engagements.contractprice*agents.commissionrate)
+from agents inner join engagements using (agentid)
+group by agentid
+having sum(engagements.contractprice*agents.commissionrate) > 1000
+) as agtMore )
+group by agents.agtfirstname, agents.agtlastname
+
+-- en realidad era mas facil:
+SELECT Agents.AgtFirstName, Agents.AgtLastName, Sum(Engagements.ContractPrice) AS SumOfContractPrice, (Sum(ContractPrice) * CommissionRate) AS Commission
+FROM Agents
+INNER JOIN Engagements
+ON Agents.AgentID = Engagements.AgentID
+GROUP BY Agents.AgtFirstName, Agents.AgtLastName, Agents.CommissionRate
+HAVING Commission > 1000;
 
 
 
@@ -1015,7 +1046,70 @@ group by staff.stffirstname, staff.stflastname
 having count (*) >= 1 and count (*) <3
 
 
--- 
+-- 1. “Display by category the category name and the count of classes offered 
+-- for those categories that have three or more classes.”
+select categorydescription, count(*) 
+from categories inner join subjects using (categoryid)
+				inner join classes using (subjectid)
+group by categorydescription
+having count(*) > 3
+
+
+-- 2. “List each staff member and the count of classes each is scheduled to teach for 
+-- those staff members who teach fewer than three classes.”
+select staff.stffirstname, staff.stflastname, count(*)
+from staff inner join faculty_classes using (staffid)
+		   inner join classes using (classid)
+group by staff.stffirstname, staff.stflastname
+having count(*) < 3
+union 
+select staff.stffirstname, staff.stflastname, 0
+from staff left join faculty_classes using (staffid)
+where faculty_classes.classid is null
+
+
+SELECT  Concat(StfLastname, ', ', StfFirstName) AS StaffName,
+        (SELECT     COUNT(S2.StaffID)
+           FROM Staff AS S2 INNER JOIN
+                Faculty_Classes ON S2.StaffID = Faculty_Classes.StaffID
+           WHERE S2.StaffID = Staff.StaffID) AS StaffClassCount
+           
+FROM         Staff
+WHERE ((SELECT COUNT(S3.StaffID)
+           FROM Staff AS S3 INNER JOIN
+             Faculty_Classes ON S3.StaffID = Faculty_Classes.StaffID
+           WHERE     S3.StaffID = Staff.StaffID) < 3);
+
+
+-- 3. “Show me the subject categories that have fewer than three full professors teaching that subject.”
+select categories.categorydescription, count(FCP.StaffID)
+from categories left join ( SELECT Faculty_Categories.CategoryID, Faculty_Categories.StaffID
+							FROM Faculty_Categories 
+							INNER JOIN Faculty
+							ON Faculty_Categories.StaffID = Faculty.StaffID
+							WHERE Faculty.Title='Professor') AS FCP
+				ON Categories.CategoryID = FCP.CategoryID 
+GROUP BY Categories.CategoryDescription
+HAVING Count(FCP.StaffID) < 3;
+
+
+
+-- 4. “Count the classes taught by every staff member.”
+select staff.stffirstname, staff.stflastname, count (staffid)
+from staff inner join faculty_classes using (staffid)
+group by staff.stffirstname, staff.stflastname
+union 
+select staff.stffirstname, staff.stflastname, 0
+from staff left join faculty_classes using (staffid)
+where faculty_classes.classid is null
+
+-- The same but with a select as a selected column
+select staff.stffirstname, staff.stflastname, 
+		(select count(*)
+		from  staff s2 inner join faculty_classes using (staffid)
+		where s2.staffid = staff.staffid	)
+from staff
+
 
 
 
