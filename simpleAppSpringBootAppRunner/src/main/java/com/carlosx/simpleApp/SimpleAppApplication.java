@@ -12,9 +12,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-//@SpringBootApplication
+@SpringBootApplication
 
-// #################THERE IS NO NEED TO IMPLEMENT BOTH INTERFACES!!!!!!!!!!!!!!!!!!!
+// #################THERE IS NO NEED TO IMPLEMENT BOTH INTERFACES just implement one!!!!!!!!!!!!!!!!!!!
+/* if I implement both then both get called ApplicationRunner and then CommanLineRunner 
+ * I non implemented
+ * 
+ * */
+
 public class SimpleAppApplication /*implements CommandLineRunner, ApplicationRunner*/{
 	
 	private static final Logger log = LoggerFactory.getLogger(SimpleAppApplication.class);
@@ -34,7 +39,7 @@ public class SimpleAppApplication /*implements CommandLineRunner, ApplicationRun
 	public void run(ApplicationArguments args) throws Exception {
 		log.info("#### ApplicationRunner Implementation.... ####");
 		log.info("Accesssing the Info bean " + info);
-		args.getNonOptionArgs().forEach(file -> log.info(file));
+		args.getNonOptionArgs().forEach(file -> log.info("File: " + file));
 	}
 
 	//@Override
